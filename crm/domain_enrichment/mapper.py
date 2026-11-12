@@ -187,7 +187,7 @@ def _label_for(doc, source_key: str, target_fieldname: str) -> str:
 	if label:
 		return label
 	df = doc.meta.get_field(target_fieldname)
-	return df.label if df and df.label else target_fieldname
+	return _(df.label) if df and df.label else target_fieldname
 
 
 def _overridable_defaults(mapping) -> set:

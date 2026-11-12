@@ -58,10 +58,10 @@ def notify_assigned_user(doc, is_cancelled=False):
 
 	message = (
 		_("Your assignment on {0} {1} has been removed by {2}").format(
-			doc.reference_type, doc.reference_name, owner
+			_(doc.reference_type), doc.reference_name, owner
 		)
 		if is_cancelled
-		else _("{0} assigned a {1} {2} to you").format(owner, doc.reference_type, doc.reference_name)
+		else _("{0} assigned a {1} {2} to you").format(owner, _(doc.reference_type), doc.reference_name)
 	)
 
 	redirect_to_doctype, redirect_to_name = get_redirect_to_doc(doc)
@@ -89,6 +89,7 @@ def get_notification_text(owner, doc, reference_doc, is_cancelled=False):
 		doctype = doctype[4:].lower()
 
 	if doctype in ["lead", "deal"]:
+		display_doctype = {"lead": _("lead"), "deal": _("deal")}[doctype]
 		name = (
 			reference_doc.lead_name or name
 			if doctype == "lead"
@@ -99,7 +100,7 @@ def get_notification_text(owner, doc, reference_doc, is_cancelled=False):
 			return f"""
                 <div class="mb-2 leading-5 text-ink-gray-5">
                     <span>{ _('Your assignment on {0} {1} has been removed by {2}').format(
-                        doctype,
+                        display_doctype,
                         f'<span class="font-medium text-ink-gray-9">{ name }</span>',
                         f'<span class="font-medium text-ink-gray-9">{ owner }</span>'
                     ) }</span>
@@ -110,7 +111,7 @@ def get_notification_text(owner, doc, reference_doc, is_cancelled=False):
             <div class="mb-2 leading-5 text-ink-gray-5">
                 <span class="font-medium text-ink-gray-9">{ owner }</span>
                 <span>{ _('assigned a {0} {1} to you').format(
-                    doctype,
+                    display_doctype,
                     f'<span class="font-medium text-ink-gray-9">{ name }</span>'
                 ) }</span>
             </div>

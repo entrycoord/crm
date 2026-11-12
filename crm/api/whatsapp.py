@@ -68,11 +68,12 @@ def notify_agent(doc):
 		doctype = doc.reference_doctype
 		if doctype and doctype.startswith("CRM "):
 			doctype = doctype[4:].lower()
+		display_doctype = {"lead": _("lead"), "deal": _("deal"), "task": _("task")}.get(doctype, doctype)
 		safe_reference_name = frappe.utils.escape_html(doc.reference_name)
 		notification_text = f"""
             <div class="mb-2 leading-5 text-ink-gray-5">
                 <span class="font-medium text-ink-gray-9">{_("You")}</span>
-                <span>{_("received a whatsapp message in {0}").format(doctype)}</span>
+                <span>{_("received a whatsapp message in {0}").format(display_doctype)}</span>
                 <span class="font-medium text-ink-gray-9">{safe_reference_name}</span>
             </div>
         """

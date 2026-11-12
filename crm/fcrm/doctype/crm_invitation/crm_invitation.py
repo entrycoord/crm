@@ -45,13 +45,28 @@ class CRMInvitation(Document):
 		title = "Frappe CRM"
 		template = "crm_invitation"
 
-		frappe.sendmail(
-			recipients=self.email,
-			subject=f"You have been invited to join {title}",
-			template=template,
-			args={"title": title, "invite_link": invite_link},
-			now=True,
-		)
+		# Existing users have a preference; new invitees use the site language.
+		language = frappe.get_cached_value("User", self.email, "language") or frappe.get_system_settings(
+			"language"
+		) or "en"
+		previous_language = frappe.local.lang
+		try:
+			frappe.local.lang = language
+			invitation_message = _("You have been invited to join {0}", lang=language).format(title)
+			frappe.sendmail(
+				recipients=self.email,
+				subject=invitation_message,
+				template=template,
+				args={
+					"title": title,
+					"invite_link": invite_link,
+					"invitation_message": invitation_message,
+					"invitation_button": _("Accept Invitation", lang=language),
+				},
+				now=True,
+			)
+		finally:
+			frappe.local.lang = previous_language
 		self.db_set("email_sent_at", frappe.utils.now())
 
 	@frappe.whitelist()
