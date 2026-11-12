@@ -29,7 +29,7 @@
       <template v-else>
         <Link
           :model-value="doc.document_type"
-          label="DocType"
+          :label="__('DocType')"
           variant="outline"
           doctype="DocType"
           :filters="docTypeFilters"

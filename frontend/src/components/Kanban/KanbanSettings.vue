@@ -142,7 +142,7 @@ const titleField = computed({
     let fieldname = list.value?.data?.title_field
     if (!fieldname) return ''
 
-    return fields.value?.find((field) => field.fieldname === fieldname)
+    return fieldMetadata.value.find((field) => field.fieldname === fieldname)
   },
   set: (val) => {
     list.value.data.title_field = val.fieldname
@@ -151,37 +151,26 @@ const titleField = computed({
 
 const columnFields = computed(() => {
   return (
-    fields.value?.filter((field) =>
+    fieldMetadata.value.filter((field) =>
       ['Link', 'Select'].includes(field.fieldtype),
-    ) || []
+    )
   )
 })
 
 const { getFields } = getMeta(props.doctype)
 
+const fieldMetadata = computed(() => {
+  return (getFields({ withStandardFields: true }) || []).map((field) => ({
+    label: __(field.label),
+    value: field.fieldname,
+    fieldname: field.fieldname,
+    fieldtype: field.fieldtype,
+  }))
+})
+
 const fields = computed(() => {
-  const _fields = getFields({ withStandardFields: true }) || []
-  if (!_fields.length) return []
-
-  let existingFields = []
-
-  allFields.value?.forEach((fieldname) => {
-    let field = _fields.find((f) => f.fieldname === fieldname)
-    if (field) existingFields.push(field)
-  })
-
-  return _fields
-    .filter(
-      (field) => !existingFields?.find((f) => f.fieldname === field.fieldname),
-    )
-    .map((field) => {
-      return {
-        label: field.label,
-        value: field.fieldname,
-        fieldname: field.fieldname,
-        fieldtype: field.fieldtype,
-      }
-    })
+  const selected = new Set(allFields.value.map((field) => field.fieldname))
+  return fieldMetadata.value.filter((field) => !selected.has(field.fieldname))
 })
 
 const allFields = computed({
@@ -193,9 +182,9 @@ const allFields = computed({
       rows = JSON.parse(rows)
     }
 
-    if (rows && fields.value) {
+    if (rows && fieldMetadata.value) {
       rows = rows.map((row) => {
-        return fields.value.find((field) => field.fieldname === row) || {}
+        return fieldMetadata.value.find((field) => field.fieldname === row) || {}
       })
     }
     return rows.filter((row) => row.label)

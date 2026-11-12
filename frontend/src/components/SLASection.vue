@@ -25,7 +25,7 @@
           <template #default="{ open }">
             <Button
               class="form-control bg-surface-base hover:bg-surface-base"
-              :label="s.value"
+              :label="__(s.value)"
               :iconRight="open ? 'lucide-chevron-up' : 'lucide-chevron-down'"
             />
           </template>
@@ -35,7 +35,7 @@
   </div>
 </template>
 <script setup>
-import { Dropdown, Tooltip } from 'frappe-ui'
+import { dayjs, dayjsLocal, Dropdown, Tooltip } from 'frappe-ui'
 import { timeAgo, formatDate, formatTime } from '@/utils'
 import { statusesStore } from '@/stores/statuses'
 import { useTelemetry } from '@framework/ui/telemetry'
@@ -63,19 +63,20 @@ let slaSection = computed(() => {
     data.value.last_response_time || data.value.first_response_time
 
   if (status == 'First Response Due' || status == 'Rolling Response Due') {
-    status = timeAgo(data.value.response_by)
-    if (status == 'just now') {
-      status = 'In less than a minute'
-    }
-    tooltipText = formatDate(data.value.response_by)
-    if (new Date(data.value.response_by) < new Date()) {
+    const responseBy = data.value.response_by
+    // Match timeAgo's seconds threshold without comparing translated text.
+    const date = typeof responseBy == 'string' ? dayjsLocal(responseBy) : responseBy
+    const nearDue = responseBy && Math.abs(dayjs().diff(date, 'seconds')) < 60
+    status = nearDue ? __('In less than a minute') : timeAgo(responseBy)
+    tooltipText = formatDate(responseBy)
+    if (new Date(responseBy) < new Date()) {
       color = 'red'
-      if (status == __('In less than a minute')) {
-        status = 'less than a minute ago'
+      if (nearDue) {
+        status = __('less than a minute ago')
       }
     }
   } else if (['Fulfilled', 'Failed'].includes(status)) {
-    status = __(status) + ' in ' + formatTime(responseTime)
+    status = __('{0} in {1}', [__(status), formatTime(responseTime)])
     tooltipText = formatDate(respondedOn)
   }
 
@@ -104,7 +105,7 @@ let slaSection = computed(() => {
         value: data.value.communication_status,
         type: 'Select',
         options: communicationStatuses.data?.map((status) => ({
-          label: status.name,
+          label: __(status.name),
           value: status.name,
           onClick: () => {
             capture('sla_status_change')

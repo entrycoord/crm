@@ -20,6 +20,7 @@
 
 <script setup>
 import { formatDuration } from '@/utils'
+import { formatDurationDisplay } from '@/utils/durationDisplay'
 import { TextInput } from 'frappe-ui'
 import { ref, computed, nextTick, useAttrs } from 'vue'
 
@@ -44,7 +45,7 @@ const sizeClass = computed(() => {
 
 const displayValue = computed(() => {
   if (isFocused.value) return editValue.value
-  return formatDuration(props.value, props.longForm)
+  return formatDurationDisplay(props.value, props.longForm)
 })
 
 function handleFocus() {

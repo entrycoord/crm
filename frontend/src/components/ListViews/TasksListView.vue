@@ -194,9 +194,9 @@ import ListRows from '@/components/ListViews/ListRows.vue'
 import {
   formatDate,
   isTranslatable,
-  formatDuration,
   sanitizeHTML,
 } from '@/utils'
+import { formatDurationDisplay } from '@/utils/durationDisplay'
 import { Dropdown, Tooltip } from 'frappe-ui'
 import {
   ListView,
@@ -244,7 +244,7 @@ function onColumnWidthUpdated({ width, save }, column) {
 }
 
 function getLabel(label, column) {
-  if (column.type === 'Duration') return formatDuration(label)
+  if (column.type === 'Duration') return formatDurationDisplay(label)
   if (column.options && isTranslatable(column.options)) return __(label)
   return label
 }

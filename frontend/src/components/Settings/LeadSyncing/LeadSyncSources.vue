@@ -5,7 +5,7 @@
       <div class="flex flex-col gap-1 w-9/12">
         <h2 class="flex gap-2 text-2xl-semibold leading-none h-5 items-center">
           {{ __('Lead Sources') }}
-          <Badge theme="amber" size="sm">Beta</Badge>
+          <Badge theme="amber" size="sm">{{ __('Beta') }}</Badge>
         </h2>
         <p class="text-p-base text-ink-gray-6">
           {{
@@ -42,7 +42,7 @@
     <EmptyState
       v-if="!sources.loading && !sources.data?.length"
       name="Lead Sources"
-      description="Add and manage your lead sources here."
+      :description="__('Add and manage your lead sources here.')"
       icon="refresh-cw"
     />
 

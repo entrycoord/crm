@@ -17,7 +17,7 @@
         <Badge
           v-if="whatsapp.status == 'failed'"
           theme="red"
-          :label="whatsapp.status"
+          :label="__('failed')"
           class="absolute -top-2 right-0"
         />
         <div
@@ -114,7 +114,7 @@
               class="size-10 cursor-pointer rounded-5 text-ink-gray-4"
               @click="() => openFileInAnotherTab(whatsapp.attach)"
             />
-            <div class="text-ink-gray-5">Document</div>
+            <div class="text-ink-gray-5">{{ __('Document') }}</div>
           </div>
           <div
             v-else-if="whatsapp.content_type == 'audio'"
@@ -256,7 +256,7 @@ const replyMode = ref(false)
 function messageOptions(message) {
   return [
     {
-      label: 'Reply',
+      label: __('Reply'),
       onClick: () => {
         replyMode.value = true
         reply.value = {

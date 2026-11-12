@@ -17,6 +17,7 @@ import {
 import { getNavigationItems } from '@/utils/navigation'
 import { activityHashFor } from '@/utils/activityHash'
 import { activityCommand } from './activityCommands'
+import { createCommandTitle, recordTypeLabel } from './presentation'
 import ContactsIcon from '@/components/Icons/ContactsIcon.vue'
 import DealsIcon from '@/components/Icons/DealsIcon.vue'
 import LeadsIcon from '@/components/Icons/LeadsIcon.vue'
@@ -223,7 +224,7 @@ function searchErrorCommand() {
   return {
     id: 'record-search-error',
     title: 'Record search is unavailable',
-    subtitle: 'Try again shortly',
+    subtitle: __('Try again shortly'),
     group: 'Records',
     icon: 'circle-alert',
     disabled: true,
@@ -310,10 +311,11 @@ function createCommands(tracked, emit, showModal) {
     ['task', 'Task', 'CRM Task'],
   ].map(([id, title, doctype]) => ({
     id: `create-${id}`,
-    title: `Create ${title}`,
+    title: createCommandTitle(title),
+    translate: false,
     group: 'Create',
     icon: 'plus',
-    keywords: `new add ${id}`,
+    keywords: `new add create ${id} ${title}`,
     perform: () => showModal({ doctype, title }),
   }))
   return [...custom, ...generic].map((item) => tracked(item, 'create'))
@@ -322,10 +324,11 @@ function createCommands(tracked, emit, showModal) {
 function createRouteCommand(id, title, route, event, emit) {
   return {
     id: `create-${id}`,
-    title: `Create ${title}`,
+    title: createCommandTitle(title),
+    translate: false,
     group: 'Create',
     icon: 'plus',
-    keywords: `new add ${id}`,
+    keywords: `new add create ${id} ${title}`,
     async perform() {
       await router.push({ name: route })
       await nextTick()
@@ -391,7 +394,7 @@ function recordCommand(record, group, tracked) {
       // The server matched these on fields the title may not contain.
       keywords: record.keywords,
       translate: false,
-      subtitle: record.doctype.replace('CRM ', ''),
+      subtitle: recordTypeLabel(record.doctype),
       group,
       icon:
         group === 'Recent'

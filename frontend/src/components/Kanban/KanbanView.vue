@@ -49,7 +49,9 @@
                   </div>
                 </template>
               </Popover>
-              <div class="text-ink-gray-9">{{ column.column.name }}</div>
+              <div class="text-ink-gray-9">
+                {{ columnLabel(column.column.name) }}
+              </div>
             </div>
             <div class="flex">
               <Dropdown :options="actions(column)">
@@ -189,12 +191,22 @@
 <script setup>
 import RefreshIcon from '@/components/Icons/RefreshIcon.vue'
 import IndicatorIcon from '@/components/Icons/IndicatorIcon.vue'
-import { isTouchScreenDevice, colors, parseColor } from '@/utils'
+import {
+  isTouchScreenDevice,
+  colors,
+  parseColor,
+  isTranslatable,
+} from '@/utils'
+import {
+  isStatusFilter,
+  statusFilterLabel,
+} from '@/components/ConditionsFilter/statusFilter'
 import Draggable from 'vuedraggable'
 import { Combobox, Dropdown, Popover } from 'frappe-ui'
 import { computed } from 'vue'
 
-defineProps({
+const props = defineProps({
+  statusDoctype: { type: String, default: '' },
   options: {
     type: Object,
     default: () => ({
@@ -232,9 +244,19 @@ const deletedColumns = computed(() => {
   return _columns
     ?.filter((col) => col['delete'])
     .map((col) => {
-      return { label: col.name, value: col.name }
+      return { label: columnLabel(col.name), value: col.name }
     })
 })
+
+function columnLabel(name) {
+  if (kanban.value?.data?.column_field !== 'status' || !props.statusDoctype) {
+    return name
+  }
+  if (isStatusFilter(props.statusDoctype)) {
+    return statusFilterLabel(props.statusDoctype, name, __)
+  }
+  return isTranslatable(props.statusDoctype) ? __(name) : name
+}
 
 function actions(column) {
   return [

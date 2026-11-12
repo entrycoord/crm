@@ -462,7 +462,7 @@ function confirmSelectedRemoval() {
     title: deletingTrigger ? __('Delete trigger') : __('Delete step'),
     size: 'sm',
     message: deleteMessage(deletingTrigger),
-    actions: [{ label: 'Cancel' }, deleteAction(deletingTrigger)],
+    actions: [{ label: __('Cancel') }, deleteAction(deletingTrigger)],
   })
 }
 

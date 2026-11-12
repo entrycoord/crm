@@ -347,6 +347,7 @@
   </div>
 </template>
 <script setup>
+import { selectOptionLabels } from '@/translation'
 import Password from '@/components/Controls/Password.vue'
 import FormattedInput from '@/components/Controls/FormattedInput.vue'
 import DurationInput from '@/components/Controls/DurationInput.vue'
@@ -541,9 +542,7 @@ const field = computed(() => {
   )
 
   if (field.fieldtype == 'Select' && typeof field.options === 'string') {
-    field.options = field.options.split('\n').map((option) => {
-      return { label: __(option), value: option }
-    })
+    field.options = selectOptionLabels(doctype, field, __)
 
     if (field.options[0].value !== '' && !field.reqd) {
       field.options.unshift({ label: '', value: '' })
@@ -667,7 +666,7 @@ const getOptions = (options) => {
     return options
   } else if (typeof options === 'string') {
     return options.split('\n').map((option) => {
-      return { label: __(option), value: option }
+      return { label: option, value: option }
     })
   } else {
     return []

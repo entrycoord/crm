@@ -2,7 +2,7 @@
   <FormControl
     v-if="filter.fieldtype == 'Check'"
     v-model="filter.value"
-    :label="filter.label"
+    :label="__(filter.label)"
     type="checkbox"
     @change.stop="updateFilter(filter, $event.target.checked)"
   />
@@ -12,15 +12,16 @@
     class="form-control cursor-pointer [&_select]:cursor-pointer"
     type="select"
     :options="filter.options"
-    :placeholder="filter.label"
+    :placeholder="__(filter.label)"
     side="bottom"
     @update:modelValue="updateFilter(filter, $event)"
   />
-  <Link
+  <component
+    :is="isStatusFilter(filter.options) ? StatusFilter : Link"
     v-else-if="filter.fieldtype === 'Link'"
     :value="filter.value"
     :doctype="filter.options"
-    :placeholder="filter.label"
+    :placeholder="__(filter.label)"
     @change="(data) => updateFilter(filter, data)"
   />
   <component
@@ -28,7 +29,7 @@
     v-else-if="['Date', 'Datetime'].includes(filter.fieldtype)"
     class="border-none"
     :model-value="filter.value"
-    :placeholder="filter.label"
+    :placeholder="__(filter.label)"
     :format="
       filter.fieldtype === 'Date'
         ? getFormat('', '', true, false, false)
@@ -40,12 +41,14 @@
     v-else
     v-model="filter.value"
     type="text"
-    :placeholder="filter.label"
+    :placeholder="__(filter.label)"
     @input.stop="debouncedFn(filter, $event.target.value)"
   />
 </template>
 <script setup>
 import Link from '@/components/Controls/Link.vue'
+import StatusFilter from '@/components/ConditionsFilter/StatusFilter.vue'
+import { isStatusFilter } from '@/components/ConditionsFilter/statusFilter'
 import { FormControl, DatePicker, DateTimePicker } from 'frappe-ui'
 import { getFormat } from '@/utils'
 import { useDebounceFn } from '@vueuse/core'

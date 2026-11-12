@@ -129,7 +129,7 @@
                   :value="option.value"
                   class="text-ink-gray-8"
                 >
-                  {{ option.label }}
+                  {{ __(option.label) }}
                 </option>
               </select>
             </div>

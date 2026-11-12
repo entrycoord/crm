@@ -165,7 +165,8 @@ import HeartIcon from '@/components/Icons/HeartIcon.vue'
 import RatingInput from '@/components/Controls/RatingInput.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
 import ListRows from '@/components/ListViews/ListRows.vue'
-import { isTranslatable, formatDuration } from '@/utils'
+import { isTranslatable } from '@/utils'
+import { formatDurationDisplay } from '@/utils/durationDisplay'
 import { Avatar, Tooltip, Dropdown } from 'frappe-ui'
 import {
   ListView,
@@ -215,7 +216,7 @@ function onColumnWidthUpdated({ width, save }, column) {
 }
 
 function getLabel(label, column) {
-  if (column.type === 'Duration') return formatDuration(label)
+  if (column.type === 'Duration') return formatDurationDisplay(label)
   if (column.options && isTranslatable(column.options)) return __(label)
   return label
 }

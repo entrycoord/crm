@@ -159,6 +159,8 @@
 <script setup>
 import FilterIcon from '@/components/Icons/FilterIcon.vue'
 import Link from '@/components/Controls/Link.vue'
+import StatusFilter from '@/components/ConditionsFilter/StatusFilter.vue'
+import { isStatusFilter } from '@/components/ConditionsFilter/statusFilter'
 import DurationInput from '@/components/Controls/DurationInput.vue'
 import RatingInput from '@/components/Controls/RatingInput.vue'
 import {
@@ -225,7 +227,10 @@ const filters = computed(() => {
 const idFieldDoctypes = ['CRM Lead', 'CRM Deal']
 
 const filterFieldOptions = computed(() => {
-  const fields = filterableFields.data || []
+  const fields = (filterableFields.data || []).map((field) => ({
+    ...field,
+    label: __(field.label),
+  }))
   if (!idFieldDoctypes.includes(props.doctype)) return fields
 
   return fields.map((field) =>
@@ -434,7 +439,7 @@ function getValueControl(f) {
     return h(Combobox, {
       trigger: 'button',
       options: _options.map((o) => ({
-        label: o,
+        label: fieldtype == 'Check' ? __(o) : o,
         value: o,
       })),
       modelValue: f.value,
@@ -444,7 +449,9 @@ function getValueControl(f) {
     if (fieldtype == 'Dynamic Link') {
       return h(FormControl, { type: 'text' })
     }
-    return h(Link, { class: 'form-control', doctype: options, value: f.value })
+    return h(isStatusFilter(options) ? StatusFilter : Link, {
+      class: 'form-control', doctype: options, value: f.value,
+    })
   } else if (typeNumber.includes(fieldtype)) {
     return h(FormControl, { type: 'number' })
   } else if (typeDate.includes(fieldtype) && operator == 'between') {

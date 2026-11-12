@@ -31,6 +31,7 @@
   <KanbanView
     v-if="route.params.viewType == 'kanban'"
     v-model="leads"
+    statusDoctype="CRM Lead Status"
     :options="{
       getRoute: (row) => getRoute(row.name),
       onNewClick: (column) => onNewClick(column),
@@ -104,14 +105,14 @@
             :variant="'subtle'"
             :theme="getRow(itemName, titleField).color"
             size="md"
-            :label="getRow(itemName, titleField).value"
+            :label="__(getRow(itemName, titleField).value)"
           />
         </div>
         <div
           v-else-if="getRow(itemName, titleField).label"
           class="truncate text-base"
         >
-          {{ getRow(itemName, titleField).label }}
+          {{ titleField === 'status' ? statusFilterLabel('CRM Lead Status', getRow(itemName, titleField).label, __) : getRow(itemName, titleField).label }}
         </div>
         <div v-else class="text-ink-gray-4">{{ __('No Title') }}</div>
       </div>
@@ -175,7 +176,7 @@
             :variant="'subtle'"
             :theme="getRow(itemName, fieldName).color"
             size="md"
-            :label="getRow(itemName, fieldName).value"
+            :label="__(getRow(itemName, fieldName).value)"
           />
         </div>
         <div
@@ -188,7 +189,7 @@
           />
         </div>
         <div v-else class="truncate text-base">
-          {{ getRow(itemName, fieldName).label }}
+          {{ fieldName === 'status' ? statusFilterLabel('CRM Lead Status', getRow(itemName, fieldName).label, __) : getRow(itemName, fieldName).label }}
         </div>
       </div>
     </template>
@@ -260,6 +261,7 @@
 </template>
 
 <script setup>
+import { statusFilterLabel } from '@/components/ConditionsFilter/statusFilter'
 import UserAvatar from '@/components/UserAvatar.vue'
 import ViewBreadcrumbs from '@/components/ViewBreadcrumbs.vue'
 import MultipleAvatar from '@/components/MultipleAvatar.vue'
@@ -283,7 +285,12 @@ import { usersStore } from '@/stores/users'
 import { statusesStore } from '@/stores/statuses'
 import { callEnabled } from '@/composables/telephony'
 import { useBroadcast } from '@/composables/useBroadcast'
-import { formatDate, timeAgo, website, formatTime } from '@/utils'
+import {
+  formatDate,
+  timeAgo,
+  website,
+  formatTime,
+} from '@/utils'
 import { timestampCell } from '@/composables/useTimelinePreferences'
 import { useTelemetry } from '@framework/ui/telemetry'
 import { useCrmOnboarding } from '@/composables/onboarding'
@@ -391,6 +398,9 @@ function getGroupedByRows(listRows, groupByField, columns) {
       rows: parseRows(filteredRows, columns),
     }
     if (groupByField.fieldname == 'status') {
+      if (option) {
+        groupDetail.displayLabel = statusFilterLabel('CRM Lead Status', option, __)
+      }
       groupDetail.icon = () =>
         h(IndicatorIcon, {
           class: getLeadStatus(option)?.color,

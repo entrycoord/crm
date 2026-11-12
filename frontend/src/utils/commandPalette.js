@@ -49,7 +49,10 @@ export function fuzzyScore(value, query) {
 
 export function scoreCommand(command, query) {
   if (command.rank != null) return command.rank
-  const titleScore = fuzzyScore(command.title, query)
+  const titleScore = Math.max(
+    fuzzyScore(command.title, query),
+    command.translate === false ? -1 : fuzzyScore(__(command.title), query),
+  )
   const keywordScore = fuzzyScore(command.keywords, query) * 0.75
   return Math.max(titleScore, keywordScore) * (command.weight ?? 1)
 }

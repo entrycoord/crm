@@ -39,7 +39,7 @@
                 ? 'text-right'
                 : ''
             "
-            :title="field.label"
+            :title="__(field.label)"
           >
             {{ __(field.label) }}
             <span
@@ -135,7 +135,7 @@
                         "
                         v-model="row[field.fieldname]"
                         type="text"
-                        :placeholder="field.placeholder"
+                        :placeholder="__(field.placeholder)"
                         :disabled="true"
                       />
                       <Link
@@ -162,7 +162,7 @@
                         :value="getUser(row[field.fieldname]).full_name"
                         :doctype="field.options"
                         :filters="field.filters"
-                        :placeholder="field.placeholder"
+                        :placeholder="__(field.placeholder)"
                         :disabled="Boolean(field.disabled)"
                         :hideMe="true"
                         @change="(v) => fieldChange(v, field, row)"
@@ -387,7 +387,7 @@
                           :bubble-menu="true"
                           editorClass="w-full !min-h-[38px] !h-[38px]"
                           :value="row[field.fieldname]"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :disabled="Boolean(field.disabled)"
                           @change="(v) => fieldChange(v, field, row)"
                         />
@@ -398,7 +398,7 @@
                         class="combobox"
                         variant="outline"
                         :options="getOptions(field.options)"
-                        :placeholder="field.placeholder"
+                        :placeholder="__(field.placeholder)"
                         :disabled="Boolean(field.disabled)"
                         @update:modelValue="(v) => fieldChange(v, field, row)"
                       />

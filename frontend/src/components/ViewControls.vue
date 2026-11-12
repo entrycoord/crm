@@ -99,7 +99,7 @@
               <Button class="cursor-grab">
                 <template #default>
                   <Tooltip :text="filter.fieldname">
-                    <span>{{ filter.label }}</span>
+                    <span>{{ __(filter.label) }}</span>
                   </Tooltip>
                 </template>
                 <template #suffix>
@@ -340,6 +340,7 @@ import ListIcon from '@/components/Icons/ListIcon.vue'
 import KanbanIcon from '@/components/Icons/KanbanIcon.vue'
 import GroupByIcon from '@/components/Icons/GroupByIcon.vue'
 import QuickFilterField from '@/components/QuickFilterField.vue'
+import { statusCommandOptions } from '@/components/ConditionsFilter/statusFilter'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import DuplicateIcon from '@/components/Icons/DuplicateIcon.vue'
 import CheckIcon from '@/components/Icons/CheckIcon.vue'
@@ -824,8 +825,12 @@ const viewsDropdownOptions = computed(() => {
   ]
 
   if (list.value?.data?.views) {
-    list.value.data.views.forEach((view) => {
-      view.label = __(view.label)
+    const views = list.value.data.views.map((source) => {
+      const view = { ...source }
+      // Standard records can be renamed, so translate only shipped labels.
+      if (view.is_standard && ['List', 'Kanban', 'Group By'].includes(view.label)) {
+        view.label = __(view.label)
+      }
       view.type = view.type || 'list'
       view.icon = getIcon(view.icon, view.type)
       view.selected = view.name === currentView.value.name
@@ -842,12 +847,13 @@ const viewsDropdownOptions = computed(() => {
           query: { view: view.name },
         })
       }
+      return view
     })
-    let publicViews = list.value.data.views.filter((v) => v.public)
-    let savedViews = list.value.data.views.filter(
+    let publicViews = views.filter((v) => v.public)
+    let savedViews = views.filter(
       (v) => !v.pinned && !v.public && !v.is_standard,
     )
-    let pinnedViews = list.value.data.views.filter((v) => v.pinned)
+    let pinnedViews = views.filter((v) => v.pinned)
 
     if (savedViews.length) {
       _views.push({
@@ -898,7 +904,7 @@ const newQuickFilters = ref([])
 function addQuickFilter(f) {
   if (!newQuickFilters.value.some((filter) => filter.fieldname === f.value)) {
     newQuickFilters.value.push({
-      label: f.label,
+      label: f.rawLabel || f.label,
       fieldname: f.value,
       fieldtype: f.fieldtype,
     })
@@ -947,7 +953,8 @@ const quickFilterOptions = computed(() => {
     .filter((f) => f.label)
     .filter((f) => !existingQuickFilters.includes(f.fieldname))
     .map((field) => ({
-      label: field.label,
+      label: __(field.label),
+      rawLabel: field.label,
       value: field.fieldname,
       fieldtype: field.fieldtype,
     }))
@@ -1060,12 +1067,12 @@ function flatFilterCommands() {
 function flatFilterCommand(filter, option) {
   return {
     id: `list-filter-flat-${filter.fieldname}-${option.value}`,
-    title: `${filter.label}: ${option.label}`,
+    title: `${__(filter.label)}: ${option.label}`,
     translate: false,
     group: 'List',
     icon: 'list-filter',
     hideWhenEmpty: true,
-    keywords: option.label,
+    keywords: `${option.label} ${option.value}`,
     checked: currentFilterValue(filter) === option.value,
     perform: () => applyQuickFilter(filter, option.value),
   }
@@ -1076,7 +1083,7 @@ async function loadFlatFilterOptions() {
   const entries = await Promise.all(
     filters.map(async (filter) => [
       filter.fieldname,
-      await commandFilterOptions(filter),
+      statusCommandOptions(filter, await commandFilterOptions(filter), __),
     ]),
   )
   flatFilterOptions.value = Object.fromEntries(entries)
@@ -1140,12 +1147,13 @@ function filterFieldCommand(filter, group) {
 }
 
 async function quickFilterOptionCommands(filter) {
-  const options = await commandFilterOptions(filter)
+  const options = statusCommandOptions(filter, await commandFilterOptions(filter), __)
   const current = currentFilterValue(filter)
   return options.map((option) => ({
     id: `list-filter-${filter.fieldname}-${option.value}`,
     title: option.label,
     translate: false,
+    keywords: option.value,
     checked: current === option.value,
     perform: () => applyQuickFilter(filter, option.value),
   }))

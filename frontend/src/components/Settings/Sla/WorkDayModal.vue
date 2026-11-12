@@ -139,7 +139,7 @@ const workdayOptions = computed(() => {
       !existingDays.includes(option.value) ||
       (dialog.value.isEditing && option.value === originalWorkday.value)
     )
-  })
+  }).map((option) => ({ ...option, label: __(option.label) }))
 })
 
 // Helper functions

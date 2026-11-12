@@ -10,7 +10,7 @@
           <Section
             labelClass="px-2 font-semibold"
             headerClass="h-8"
-            :label="section.label"
+            :label="__(section.label)"
             :hideLabel="!section.label"
             :opened="section.opened"
           >
@@ -106,7 +106,7 @@
                         <PrimaryDropdown
                           v-else-if="field.fieldtype === 'Dropdown'"
                           :value="doc[field.fieldname]"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :itemPlaceholder="field.itemPlaceholder"
                           :options="field.options"
                           :validate="field.validate"
@@ -132,7 +132,7 @@
                           class="form-control"
                           variant="ghost"
                           :modelValue="doc[field.fieldname]"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           @change.stop="fieldChange($event.target.value, field)"
                         />
                         <Select
@@ -141,7 +141,7 @@
                           variant="ghost"
                           :modelValue="doc[field.fieldname]"
                           :options="field.options"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           @update:modelValue="(v) => fieldChange(v, field)"
                         />
                         <Link
@@ -154,7 +154,7 @@
                           doctype="User"
                           :filters="field.filters"
                           :placeholder="
-                            __('Select') + ' ' + field.label + '...'
+                            __('Select {0}', [__(field.label)])
                           "
                           :hideMe="true"
                           @change="(v) => fieldChange(v, field)"
@@ -193,7 +193,7 @@
                               : doc[field.options]
                           "
                           :filters="field.filters"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :onCreate="field.create"
                           @change="(v) => fieldChange(v, field)"
                         />
@@ -204,7 +204,7 @@
                           <TimePicker
                             :model-value="doc[field.fieldname]"
                             :format="getFormat('', '', false, true, false)"
-                            :placeholder="field.placeholder"
+                            :placeholder="__(field.placeholder)"
                             @change="(v) => fieldChange(v, field)"
                           />
                         </div>
@@ -215,7 +215,7 @@
                           <DateTimePicker
                             :model-value="doc[field.fieldname]"
                             :format="getFormat('', '', true, true, false)"
-                            :placeholder="field.placeholder"
+                            :placeholder="__(field.placeholder)"
                             side="left"
                             align="start"
                             @change="(v) => fieldChange(v, field)"
@@ -228,7 +228,7 @@
                           <DatePicker
                             :model-value="doc[field.fieldname]"
                             :format="getFormat('', '', true, false, false)"
-                            :placeholder="field.placeholder"
+                            :placeholder="__(field.placeholder)"
                             side="left"
                             align="start"
                             @change="(v) => fieldChange(v, field)"
@@ -240,7 +240,7 @@
                           type="text"
                           variant="ghost"
                           :value="getFormattedPercent(field.fieldname, doc)"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :debounce="500"
                           :disabled="Boolean(field.read_only)"
                           @change.stop="
@@ -252,7 +252,7 @@
                           class="form-control"
                           variant="ghost"
                           :modelValue="doc[field.fieldname]"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :disabled="Boolean(field.read_only)"
                           @change.stop="fieldChange($event.target.value, field)"
                         />
@@ -262,7 +262,7 @@
                           type="text"
                           variant="ghost"
                           :value="doc[field.fieldname] || '0'"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :debounce="500"
                           :disabled="Boolean(field.read_only)"
                           @change.stop="fieldChange($event.target.value, field)"
@@ -273,7 +273,7 @@
                           type="text"
                           variant="ghost"
                           :value="getFormattedFloat(field.fieldname, doc)"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :debounce="500"
                           :disabled="Boolean(field.read_only)"
                           @change.stop="
@@ -286,7 +286,7 @@
                           type="text"
                           variant="ghost"
                           :value="getFormattedCurrency(field.fieldname, doc)"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :debounce="500"
                           :disabled="Boolean(field.read_only)"
                           @change.stop="
@@ -298,7 +298,7 @@
                           class="form-control"
                           variant="ghost"
                           :modelValue="doc[field.fieldname]"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :disabled="Boolean(field.read_only)"
                           @update:modelValue="(v) => fieldChange(v, field)"
                         />
@@ -362,7 +362,7 @@
                           :bubble-menu="true"
                           editorClass="w-full !min-h-[38px] !h-[38px] ml-1"
                           :value="doc[field.fieldname]"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           :disabled="Boolean(field.read_only)"
                           @change="(v) => fieldChange(v, field)"
                         />
@@ -372,7 +372,7 @@
                           type="text"
                           variant="ghost"
                           :modelValue="doc[field.fieldname]"
-                          :placeholder="field.placeholder"
+                          :placeholder="__(field.placeholder)"
                           @change.stop="fieldChange($event.target.value, field)"
                         />
                       </div>
@@ -420,6 +420,7 @@
 </template>
 
 <script setup>
+import { selectOptionLabels } from '@/translation'
 import FormattedInput from '@/components/Controls/FormattedInput.vue'
 import AttachControl from '@/components/Controls/AttachControl.vue'
 import HtmlControl from '@/components/Controls/HtmlControl.vue'
@@ -523,9 +524,7 @@ function parsedField(field) {
   }
 
   if (field.fieldtype == 'Select' && typeof field.options === 'string') {
-    field.options = field.options.split('\n').map((option) => {
-      return { label: option, value: option }
-    })
+    field.options = selectOptionLabels(props.doctype, field, __)
 
     if (field.options[0].value !== '' && !field.reqd) {
       field.options.unshift({ label: '', value: '' })

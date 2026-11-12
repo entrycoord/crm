@@ -24,15 +24,15 @@
             <nav class="space-y-[3px] px-1">
               <SidebarItem
                 v-for="item in tab.items"
-                :key="item.label"
-                :label="__(item.label)"
-                :data-page="item.label"
-                :active="activeTab?.label == item.label"
+                :key="item.key"
+                :label="item.label"
+                :data-page="item.key"
+                :active="activeTab?.key == item.key"
                 class="w-full"
                 :class="
-                  activeTab?.label != item.label && 'hover:!bg-surface-gray-3'
+                  activeTab?.key != item.key && 'hover:!bg-surface-gray-3'
                 "
-                @click="activeSettingsPage = item.label"
+                @click="activeSettingsPage = item.key"
               >
                 <template #prefix>
                   <Icon :icon="item.icon" class="size-4 text-ink-gray-7" />
@@ -109,6 +109,7 @@ const tabs = computed(() => {
       label: __('User Configuration'),
       items: [
         {
+          key: 'Profile',
           label: __('Profile'),
           icon: () =>
             h(Avatar, {
@@ -119,6 +120,7 @@ const tabs = computed(() => {
           component: markRaw(ProfilePage),
         },
         {
+          key: 'Preferences',
           label: __('Preferences'),
           icon: SlidersIcon,
           component: markRaw(PreferencesSettings),
@@ -129,21 +131,25 @@ const tabs = computed(() => {
       label: __('System Configuration'),
       items: [
         {
+          key: 'General',
           label: __('General'),
           component: markRaw(GeneralSettings),
           icon: SettingsIcon,
         },
         {
+          key: 'Dashboard',
           label: __('Dashboard'),
           component: markRaw(DashboardSettings),
           icon: LucideLayoutDashboard,
         },
         {
+          key: 'Defaults',
           label: __('Defaults'),
           component: markRaw(DefaultsSettings),
           icon: MonitorCogIcon,
         },
         {
+          key: 'Brand',
           label: __('Brand'),
           icon: SparkleIcon,
           component: markRaw(BrandSettings),
@@ -155,18 +161,21 @@ const tabs = computed(() => {
       label: __('User Management'),
       items: [
         {
+          key: 'Users',
           label: __('Users'),
           icon: 'user',
           component: markRaw(Users),
           condition: () => isManager(),
         },
         {
+          key: 'Invite User',
           label: __('Invite User'),
           icon: 'user-plus',
           component: markRaw(InviteUserPage),
           condition: () => isManager(),
         },
         {
+          key: 'Sales Hierarchy',
           label: __('Sales Hierarchy'),
           icon: LucideNetwork,
           component: markRaw(Hierarchy),
@@ -179,12 +188,14 @@ const tabs = computed(() => {
       label: __('Email'),
       items: [
         {
+          key: 'Accounts',
           label: __('Accounts'),
           icon: Email2Icon,
           component: markRaw(EmailConfig),
           condition: () => isManager(),
         },
         {
+          key: 'Templates',
           label: __('Templates'),
           icon: EmailTemplateIcon,
           component: markRaw(EmailTemplatePage),
@@ -195,27 +206,32 @@ const tabs = computed(() => {
       label: __('Automation & Rules'),
       items: [
         {
+          key: 'Workflow Automations',
           label: __('Workflow Automations'),
           icon: LucideWorkflow,
           component: markRaw(WorkflowAutomationPage),
           condition: () => window.has_automation_engine,
         },
         {
+          key: 'Assignment Rules',
           label: __('Assignment Rules'),
           icon: markRaw(h(SettingsIcon2, { class: 'rotate-90' })),
           component: markRaw(AssignmentRulePage),
         },
         {
+          key: 'SLA Policies',
           label: __('SLA Policies'),
           icon: markRaw(h(ShieldCheck)),
           component: markRaw(SlaConfig),
         },
         {
+          key: 'Forms',
           label: __('Forms'),
           component: markRaw(FormsSettings),
           icon: markRaw(LucideTextCursorInput),
         },
         {
+          key: 'Enrichment',
           label: __('Enrichment'),
           component: markRaw(EnrichmentSettings),
           icon: markRaw(LucideZap),
@@ -227,6 +243,7 @@ const tabs = computed(() => {
       label: __('Customization'),
       items: [
         {
+          key: 'Home Actions',
           label: __('Home Actions'),
           component: markRaw(HomeActions),
           icon: 'house',
@@ -238,23 +255,27 @@ const tabs = computed(() => {
       label: __('Integrations', null, 'FCRM'),
       items: [
         {
+          key: 'Telephony',
           label: __('Telephony'),
           icon: PhoneIcon,
           component: markRaw(TelephonyPage),
         },
         {
+          key: 'WhatsApp',
           label: __('WhatsApp'),
           icon: WhatsAppIcon,
           component: markRaw(WhatsAppSettings),
           condition: () => isWhatsappInstalled.value && isManager(),
         },
         {
+          key: 'ERPNext',
           label: __('ERPNext'),
           icon: ERPNextIcon,
           component: markRaw(ERPNextSettings),
           condition: () => isManager(),
         },
         {
+          key: 'Lead Syncing',
           label: __('Lead Syncing'),
           icon: 'refresh-cw',
           component: markRaw(LeadSyncSourcePage),
@@ -285,7 +306,7 @@ function setActiveTab(tabName) {
       tabs.value
         .map((tab) => tab.items)
         .flat()
-        .find((tab) => tab.label === tabName)) ||
+        .find((tab) => tab.key === tabName)) ||
     tabs.value[0].items[0]
 }
 
@@ -294,7 +315,7 @@ function setActiveTab(tabName) {
 function scrollActiveIntoView() {
   nextTick(() => {
     const el = sidebarContainer.value?.querySelector(
-      `[data-page="${activeTab.value?.label}"]`,
+      `[data-page="${activeTab.value?.key}"]`,
     )
     el?.scrollIntoView({ block: 'nearest' })
   })

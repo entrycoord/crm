@@ -199,7 +199,7 @@
                           <DragVerticalIcon
                             class="field-drag-handle h-3.5 cursor-grab"
                           />
-                          <div class="truncate">{{ field.label }}</div>
+                          <div class="truncate">{{ __(field.label) }}</div>
                         </div>
                         <Button
                           variant="ghost"
@@ -231,7 +231,7 @@
                     </template>
                     <template #item-label="{ item }">
                       <div class="flex flex-col gap-1 text-ink-gray-9">
-                        <div>{{ item.label }}</div>
+                        <div>{{ __(item.label) }}</div>
                         <div class="text-ink-gray-4 text-sm">
                           {{ `${item.fieldname} - ${item.fieldtype}` }}
                         </div>
@@ -353,7 +353,7 @@ const fields = computed(() => {
 
 function addTab() {
   if (tabs.value.length == 1 && !tabs.value[0].label) {
-    tabs.value[0].label = __('New Tab')
+    tabs.value[0].label = 'New Tab'
     tabIndex.value = 0
     nextTick(() => {
       tabItemRefs.value[0]?.scrollIntoView({
@@ -366,7 +366,7 @@ function addTab() {
   }
 
   tabs.value.push({
-    label: __('New Tab'),
+    label: 'New Tab',
     name: 'tab_' + getRandom(),
     sections: [],
   })

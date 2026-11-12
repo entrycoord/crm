@@ -26,7 +26,7 @@
         <Button
           variant="ghost"
           class="text-lg-medium text-nowrap"
-          :label="__(viewControls.currentView?.label)"
+          :label="viewLabel"
           :iconRight="open ? 'lucide-chevron-up' : 'lucide-chevron-down'"
         >
           <template #prefix>
@@ -66,12 +66,20 @@
 <script setup>
 import Icon from '@/components/Icon.vue'
 import { Dropdown } from 'frappe-ui'
+import { computed } from 'vue'
 
 defineProps({
   routeName: { type: String, required: true },
 })
 
 const viewControls = defineModel({ type: Object, default: () => ({}) })
+
+const viewLabel = computed(() => {
+  const view = viewControls.value?.currentView
+  return view?.is_standard && ['List', 'Kanban', 'Group By'].includes(view.label)
+    ? __(view.label)
+    : view?.label
+})
 </script>
 
 <style scoped>

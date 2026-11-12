@@ -244,6 +244,7 @@
   />
 </template>
 <script setup>
+import { statusFilterLabel } from '@/components/ConditionsFilter/statusFilter'
 import DeleteLinkedDocModal from '@/components/DeleteLinkedDocModal.vue'
 import ErrorPage from '@/components/ErrorPage.vue'
 import Icon from '@/components/Icon.vue'
@@ -276,7 +277,6 @@ import {
   setupCustomizations,
   copyToClipboard,
   validateIsImageFile,
-  isTranslatable,
 } from '@/utils'
 import { getView } from '@/utils/view'
 import { getSettings } from '@/stores/settings'
@@ -667,8 +667,7 @@ function openEmailBox() {
 }
 
 function statusLabel(status) {
-  if (isTranslatable('CRM Lead Status')) return __(status)
-  return status
+  return statusFilterLabel('CRM Lead Status', status, __)
 }
 
 const showLostReasonModal = ref(false)

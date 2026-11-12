@@ -68,7 +68,7 @@
                 >
                   <div class="flex items-center gap-2">
                     <DragVerticalIcon class="h-3.5 cursor-grab" />
-                    <div>{{ field.label }}</div>
+                    <div>{{ __(field.label) }}</div>
                   </div>
                   <Button
                     variant="ghost"
@@ -101,7 +101,7 @@
               </template>
               <template #item-label="{ item }">
                 <div class="flex flex-col gap-1 text-ink-gray-9">
-                  <div>{{ item.label }}</div>
+                  <div>{{ __(item.label) }}</div>
                   <div class="text-ink-gray-4 text-sm">
                     {{ `${item.fieldname} - ${item.fieldtype}` }}
                   </div>
@@ -128,7 +128,7 @@
         iconLeft="lucide-plus"
         @click="
           sections.push({
-            label: __('New Section'),
+            label: 'New Section',
             opened: true,
             name: 'section_' + getRandom(),
             columns: [{ name: 'column_' + getRandom(), fields: [] }],

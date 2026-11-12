@@ -79,7 +79,7 @@ const processedTabs = computed(() => {
       }
     })
     .filter((tab) => !tab.hidden)
-    .map((tab, i) => ({ ...tab, value: tab.name || String(i) }))
+    .map((tab, i) => ({ ...tab, label: __(tab.label), value: tab.name || String(i) }))
 })
 
 const hasTabs = computed(() => {
