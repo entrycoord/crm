@@ -2,77 +2,65 @@
   <Dialog v-model:open="show" :size="'sm'" bare>
     <template #default>
       <div class="p-4 pt-5">
-        <div class="flex justify-center">
-          <div class="flex flex-col items-center">
-            <CRMLogo class="mb-3 size-12" />
-            <Dialog.Title as-child>
-              <h3 class="text-2xl-semibold text-ink-gray-9">Frappe CRM</h3>
-            </Dialog.Title>
+        <Dialog.Title as-child><h3 class="sr-only">{{ __('About') }}</h3></Dialog.Title>
+        <div v-if="branding.logo || branding.title || branding.subtitle" class="flex items-center gap-3">
+          <img v-if="branding.logo" :src="branding.logo" alt="" class="max-h-12 max-w-30 object-contain" />
+          <div class="flex flex-col">
+            <span v-if="branding.title" class="text-lg-semibold text-ink-gray-9">{{ branding.title }}</span>
+            <span v-if="branding.subtitle" class="text-sm text-ink-gray-5">{{ branding.subtitle }}</span>
           </div>
         </div>
-        <hr class="border-t my-3 mx-2" />
-        <div>
-          <a
-            v-for="link in links"
-            :key="link.label"
-            class="flex py-2 px-2 hover:bg-surface-gray-1 rounded-4 cursor-pointer"
-            target="_blank"
-            :href="link.url"
-          >
-            <component
-              :is="link.icon"
-              v-if="link.icon"
-              class="size-4 mr-2 text-ink-gray-7"
-            />
-            <span class="text-base text-ink-gray-8">
-              {{ link.label }}
-            </span>
-          </a>
+        <h3 v-else class="text-lg-semibold text-ink-gray-9">{{ __('About') }}</h3>
+        <p v-if="branding.message" class="mt-3 whitespace-pre-line text-p-sm text-ink-gray-6">{{ branding.message }}</p>
+        <p v-if="about.loading" role="status" class="mt-3 text-sm text-ink-gray-5">{{ __('Loading About information…') }}</p>
+        <p v-else-if="about.error || !about.data" role="status" class="mt-3 text-sm text-ink-gray-5">{{ __('About information is unavailable.') }}</p>
+        <div v-if="about.data?.release" class="mt-3 text-p-sm text-ink-gray-5">{{ __('Release') }}: {{ about.data.release }}</div>
+        <div class="mt-3 flex flex-col gap-2">
+          <div v-for="app in about.data?.apps || []" :key="app.app" class="flex items-baseline justify-between gap-3">
+            <span class="text-base text-ink-gray-8">{{ __(app.title) }}</span>
+            <span class="text-sm text-ink-gray-5">{{ app.version }}</span>
+          </div>
         </div>
-        <hr class="border-t my-3 mx-2" />
-        <p class="text-sm text-ink-gray-6 px-2 mt-2">
-          © Frappe Technologies Pvt. Ltd. and contributors
-        </p>
+        <hr class="border-t my-3" />
+        <p v-if="branding.contact" class="mb-2 whitespace-pre-line text-xs text-ink-gray-6">{{ branding.contact }}</p>
+        <button :aria-expanded="showLegal" class="text-xs text-ink-gray-4 hover:text-ink-gray-6" @click="showLegal = !showLegal">{{ __('Legal notices') }}</button>
+        <div v-if="showLegal" class="mt-2 text-xs text-ink-gray-5">
+          <p class="mb-1">&copy; {{ about.data?.copyright || fallbackCopyright }}</p>
+          <p class="mb-1">{{ __('This system includes free software. It comes with no warranty, to the extent permitted by law. You may redistribute it under the terms of the licenses below.') }}</p>
+          <ul class="list-disc pl-4">
+            <li v-for="component in components" :key="component.app">
+              {{ component.name }} {{ component.version }} &ndash;
+              <a :href="component.license_url" target="_blank" rel="noopener noreferrer" class="underline">{{ component.license }}</a>,
+              <a :href="component.source" target="_blank" rel="noopener noreferrer" class="underline">{{ __('Source code') }}</a>
+            </li>
+          </ul>
+        </div>
       </div>
     </template>
   </Dialog>
 </template>
 <script setup>
-import CRMLogo from '@/components/Icons/CRMLogo.vue'
-import GitHubIcon from '@/components/Icons/GitHubIcon.vue'
-import LucideGlobe from '~icons/lucide/globe'
-import LucideHeadset from '~icons/lucide/headset'
-import LucideBug from '~icons/lucide/bug'
-import LucideBookOpen from '~icons/lucide/book-open'
-import { Dialog } from 'frappe-ui'
+import { Dialog, createResource } from 'frappe-ui'
+import { computed, ref, watch } from 'vue'
 
-let show = defineModel({ type: Boolean })
-
-let links = [
-  {
-    label: __('Website'),
-    url: 'https://frappe.io/crm',
-    icon: LucideGlobe,
-  },
-  {
-    label: __('GitHub Repository'),
-    url: 'https://github.com/frappe/crm',
-    icon: GitHubIcon,
-  },
-  {
-    label: __('Documentation'),
-    url: 'https://docs.frappe.io/crm',
-    icon: LucideBookOpen,
-  },
-  {
-    label: __('Report an Issue'),
-    url: 'https://github.com/frappe/crm/issues',
-    icon: LucideBug,
-  },
-  {
-    label: __('Contact Support'),
-    url: 'https://support.frappe.io',
-    icon: LucideHeadset,
-  },
-]
+const show = defineModel({ type: Boolean })
+const showLegal = ref(false)
+// The fallback must point at the deployed CRM fork when this modified SPA is deployed.
+const fallbackCopyright = 'Frappe Technologies Pvt. Ltd. and contributors'
+const fallbackComponents = [{
+  app: 'crm', name: 'Frappe CRM', license: 'AGPL-3.0',
+  license_url: 'https://github.com/frappe/crm/blob/develop/LICENSE',
+  source: 'https://github.com/entrycoord/crm',
+}]
+const about = createResource({ url: 'platform_customize.branding.api.get_about', onError: () => {} })
+const branding = computed(() => about.data?.branding || {})
+const components = computed(() => about.data?.components?.length ? about.data.components : fallbackComponents)
+watch(show, (open) => {
+  if (open) {
+    // frappe-ui rejects on failure even when an onError handler is provided.
+    Promise.resolve(about.fetch()).catch(() => {})
+  } else {
+    showLegal.value = false
+  }
+}, { immediate: true })
 </script>
