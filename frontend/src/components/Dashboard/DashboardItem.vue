@@ -76,11 +76,11 @@ const numberCardProps = computed(() =>
   toNumberCardProps(config.value as NumberChartConfig),
 )
 const donutChartProps = computed(() =>
-  toDonutChartProps(config.value as DonutChartConfig),
+  toDonutChartProps(config.value as DonutChartConfig, __),
 )
 const axisChart = computed(() => ({
   component:
     axisChartComponents[getAxisChartKind(config.value as AxisChartConfig)],
-  props: toAxisChartProps(config.value as AxisChartConfig),
+  props: toAxisChartProps(config.value as AxisChartConfig, __),
 }))
 </script>

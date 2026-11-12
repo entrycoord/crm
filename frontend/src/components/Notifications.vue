@@ -61,7 +61,7 @@
                 {{ n.from_user.full_name }}
               </span>
               <span>
-                {{ __('mentioned you in {0}', [n.reference_doctype]) }}
+                {{ __('mentioned you in {0}', [doctypeLabel(n.reference_doctype)]) }}
               </span>
               <span class="font-medium text-ink-gray-9">
                 {{ n.reference_name }}
@@ -96,6 +96,7 @@ import {
 } from '@/stores/notifications'
 import { globalStore } from '@/stores/global'
 import { timeAgo, sanitizeHTML } from '@/utils'
+import { doctypeLabel } from '@/utils/doctypeLabel'
 import { onClickOutside } from '@vueuse/core'
 import { useTelemetry } from '@framework/ui/telemetry'
 import { ref, onMounted, onBeforeUnmount } from 'vue'

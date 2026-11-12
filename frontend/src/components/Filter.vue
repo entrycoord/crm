@@ -227,9 +227,12 @@ const filters = computed(() => {
 const idFieldDoctypes = ['CRM Lead', 'CRM Deal']
 
 const filterFieldOptions = computed(() => {
-  const fields = (filterableFields.data || []).map((field) => ({
+  // `description` renders as a second line in the dropdown, which has no max
+  // width, so a long one stretches the whole list.
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const fields = (filterableFields.data || []).map(({ description, ...field }) => ({
     ...field,
-    label: __(field.label),
+    label: field.fieldname === '_liked_by' ? __('Liked By') : __(field.label),
   }))
   if (!idFieldDoctypes.includes(props.doctype)) return fields
 

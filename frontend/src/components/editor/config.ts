@@ -100,7 +100,10 @@ export const moreToolbarItems: CommandMenuItem[] = [
 ]
 
 const MoreMenu: CommandMenuItem = {
-  label: 'More',
+  // getter: this module loads before the translation plugin installs __
+  get label() {
+    return __('More')
+  },
   icon: 'lucide-ellipsis',
   action: () => {},
   component: markRaw(EditorMoreMenu),

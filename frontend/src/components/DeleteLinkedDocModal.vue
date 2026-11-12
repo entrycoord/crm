@@ -61,7 +61,7 @@
           <div v-if="linkedDocs?.length == 0" class="text-ink-gray-5 text-base">
             {{
               __('Are you sure you want to delete {0} - {1}?', [
-                props.doctype,
+                doctypeLabel(props.doctype),
                 props.docname,
               ])
             }}
@@ -148,6 +148,7 @@
 
 <script setup>
 import { Dialog, createResource, call, toast } from 'frappe-ui'
+import { doctypeLabel } from '@/utils/doctypeLabel'
 import { useRouter } from 'vue-router'
 import { computed, ref } from 'vue'
 import {

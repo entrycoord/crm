@@ -68,6 +68,7 @@
 import Link from '@/components/Controls/Link.vue'
 import TextEditorControl from '@/components/Controls/TextEditorControl.vue'
 import { statusesStore } from '@/stores/statuses'
+import { selectOptionLabels } from '@/translation'
 import { createDocument } from '@/composables/document'
 import { useTelemetry } from '@framework/ui/telemetry'
 import {
@@ -112,7 +113,11 @@ const fields = createResource({
       data
         .filter((f) => f.hidden == 0 && f.read_only == 0)
         // eslint-disable-next-line @typescript-eslint/no-unused-vars
-        .map(({ description, ...f }) => ({ ...f, value: f.fieldname }))
+        .map(({ description, ...f }) => ({
+          ...f,
+          label: __(f.label),
+          value: f.fieldname,
+        }))
     )
   },
 })
@@ -237,21 +242,20 @@ function updateValue(v) {
   newValue.value = value
 }
 
-function getSelectOptions(options) {
-  return options.split('\n')
-}
-
 function getValueComponent(f) {
   const { fieldtype, options } = f
   if (typeSelect.includes(fieldtype) || typeCheck.includes(fieldtype)) {
+    // Labels are display text; the stored values stay the English ones.
     const _options =
-      fieldtype == 'Check' ? ['Yes', 'No'] : getSelectOptions(options)
+      fieldtype == 'Check'
+        ? [
+            { label: __('Yes'), value: 'Yes' },
+            { label: __('No'), value: 'No' },
+          ]
+        : selectOptionLabels(props.doctype, f, __)
     return h(FormControl, {
       type: 'select',
-      options: _options.map((o) => ({
-        label: o,
-        value: o,
-      })),
+      options: _options,
       modelValue: newValue.value,
     })
   } else if (typeLink.includes(fieldtype)) {

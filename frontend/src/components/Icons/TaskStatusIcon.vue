@@ -6,7 +6,7 @@
     viewBox="0 0 16 16"
     fill="none"
     class="text-ink-gray-7"
-    :aria-label="status"
+    :aria-label="status ? __(status) : status"
   >
     <path
       v-if="status == 'Backlog'"

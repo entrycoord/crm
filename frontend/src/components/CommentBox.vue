@@ -35,9 +35,9 @@
           </AttachmentItem>
         </div>
         <div
-          class="flex justify-between gap-2 overflow-hidden border-t px-4 py-2.5"
+          class="flex justify-between gap-2 overflow-hidden border-t px-4 py-2.5 max-sm:flex-col"
         >
-          <div class="flex gap-1 items-center overflow-x-auto">
+          <div class="flex min-w-0 items-center gap-1 overflow-x-auto">
             <FileUploader
               :doctype="doctype"
               :docname="modelValue.name"
@@ -65,12 +65,16 @@
               />
             </IconPicker>
           </div>
-          <div class="mt-2 flex items-center justify-end space-x-2 sm:mt-0">
+          <div class="flex shrink-0 items-center justify-end space-x-2">
             <Button v-bind="discardButtonProps || {}" :label="__('Discard')" />
             <Button
               variant="solid"
               v-bind="submitButtonProps || {}"
-              :label="`${__('Comment')} (${submitShortcutLabel})`"
+              :label="
+                isMobileView
+                  ? __('Comment')
+                  : `${__('Comment')} (${submitShortcutLabel})`
+              "
             />
           </div>
         </div>
@@ -89,6 +93,7 @@ import {
   uploadFile,
 } from '@/components/editor/config'
 import { submitShortcutLabel } from '@/utils'
+import { isMobileView } from '@/composables/settings'
 import { usersStore } from '@/stores/users'
 import { useTelemetry } from '@framework/ui/telemetry'
 import { FileUploader } from 'frappe-ui'

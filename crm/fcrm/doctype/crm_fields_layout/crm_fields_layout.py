@@ -177,16 +177,16 @@ def get_permlevel_access(permission_type="write", doctype=None, parent_doctype=N
 
 
 def get_field_obj(field):
-	field["placeholder"] = field.get("placeholder") or "Add " + field.label + "..."
+	label = _(field.label)
+	# Upstream builds the "Add ..." wording first, so the Link/Select branches never
+	# replaced it; the wording stays, only the text is made translatable.
+	field["placeholder"] = field.get("placeholder") or _("Add {0}...").format(label)
 
-	if field.fieldtype == "Link":
-		field["placeholder"] = field.get("placeholder") or "Select " + field.label + "..."
-	elif field.fieldtype == "Select" and field.options:
-		field["placeholder"] = field.get("placeholder") or "Select " + field.label + "..."
+	if field.fieldtype == "Select" and field.options:
 		field["options"] = [{"label": _(option), "value": option} for option in field.options.split("\n")]
 
 	if field.read_only:
-		field["tooltip"] = "This field is read only and cannot be edited."
+		field["tooltip"] = _("This field is read only and cannot be edited.")
 
 	return field
 

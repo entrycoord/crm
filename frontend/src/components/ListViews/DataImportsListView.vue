@@ -162,14 +162,9 @@ import ListBulkActions from '@/components/ListBulkActions.vue'
 import ListRows from '@/components/ListViews/ListRows.vue'
 import type { DataImportList, ListColumn } from '@/utils/dataImport'
 import { Tooltip, Dropdown } from 'frappe-ui'
-import {
-  ListView,
-  ListHeader,
-  ListHeaderItem,
-  ListSelectBanner,
-  ListRowItem,
-  ListFooter,
-} from 'frappe-ui/experimental'
+import { ListView, ListHeader, ListHeaderItem, ListRowItem } from 'frappe-ui/experimental'
+import ListSelectBanner from '@/components/ListViews/ListSelectBanner.vue'
+import ListFooter from '@/components/ListViews/ListFooter.vue'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 

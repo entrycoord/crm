@@ -278,7 +278,7 @@
               >
                 <span class="font-medium">{{ activity.owner_name }}</span>
                 <span class="text-ink-gray-5">{{
-                  __(activity.data.type)
+                  activity.data.type == 'added' ? __('added') : __('removed')
                 }}</span>
                 <a
                   v-if="activity.data.file_url"
@@ -334,14 +334,14 @@
                 <span class="font-medium text-ink-gray-8">
                   {{ activity.owner_name }}
                 </span>
-                <span v-if="activity.type">{{ __(activity.type) }}</span>
+                <span v-if="activity.type">{{ activity.type }}</span>
                 <span
                   v-if="activity.data?.field_label"
                   class="max-w-xs truncate font-medium text-ink-gray-8"
                 >
                   {{ __(activity.data.field_label) }}
                 </span>
-                <span v-if="activity.value">{{ __(activity.value) }}</span>
+                <span v-if="activity.value">{{ activity.value }}</span>
                 <span
                   v-if="activity.data?.old_value"
                   class="max-w-xs font-medium text-ink-gray-8"
@@ -357,7 +357,7 @@
                     {{ activity.data.old_value }}
                   </div>
                 </span>
-                <span v-if="activity.to">{{ __('to') }}</span>
+                <span v-if="activity.to">{{ activity.to }}</span>
                 <span
                   v-if="activity.data?.value"
                   class="max-w-xs font-medium text-ink-gray-8"
@@ -403,7 +403,7 @@
                     aria-hidden="true"
                   />
                   <span v-if="a.type">
-                    {{ startCase(__(a.type)) }}
+                    {{ startCase(a.type) }}
                   </span>
                   <span
                     v-if="a.data?.old_value"
@@ -420,7 +420,7 @@
                       {{ a.data.old_value }}
                     </div>
                   </span>
-                  <span v-if="a.to">{{ __('to') }}</span>
+                  <span v-if="a.to">{{ a.to }}</span>
                   <span
                     v-if="a.data?.value"
                     class="max-w-xs font-medium text-ink-gray-8"
@@ -831,18 +831,20 @@ function update_activities_details(activity) {
   activity.value = ''
   activity.to = ''
 
+  // Literal __() calls (not __(variable)) so the strings are extracted into the
+  // catalog; the template prints the already translated words.
   if (activity.activity_type == 'creation') {
-    activity.type = activity.data
+    activity.type = __(activity.data)
   } else if (activity.activity_type == 'added') {
-    activity.type = 'added'
-    activity.value = 'as'
+    activity.type = __('added')
+    activity.value = __('as')
   } else if (activity.activity_type == 'removed') {
-    activity.type = 'removed'
-    activity.value = 'value'
+    activity.type = __('removed')
+    activity.value = __('value')
   } else if (activity.activity_type == 'changed') {
-    activity.type = 'changed'
-    activity.value = 'from'
-    activity.to = 'to'
+    activity.type = __('changed')
+    activity.value = __('from')
+    activity.to = __('to')
   }
 }
 

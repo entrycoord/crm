@@ -16,6 +16,7 @@
           >
             <QuickFilterField
               :filter="filter"
+              :doctype="doctype"
               @applyQuickFilter="(f, v) => applyQuickFilter(f, v)"
             />
           </div>
@@ -161,6 +162,7 @@
       >
         <QuickFilterField
           :filter="filter"
+          :doctype="doctype"
           @applyQuickFilter="(f, v) => applyQuickFilter(f, v)"
         />
       </div>
@@ -341,6 +343,7 @@ import KanbanIcon from '@/components/Icons/KanbanIcon.vue'
 import GroupByIcon from '@/components/Icons/GroupByIcon.vue'
 import QuickFilterField from '@/components/QuickFilterField.vue'
 import { statusCommandOptions } from '@/components/ConditionsFilter/statusFilter'
+import { commandOptionLabels } from '@/utils/filterOptionLabels'
 import EditIcon from '@/components/Icons/EditIcon.vue'
 import DuplicateIcon from '@/components/Icons/DuplicateIcon.vue'
 import CheckIcon from '@/components/Icons/CheckIcon.vue'
@@ -495,7 +498,7 @@ usePageMeta(() => {
   let label = currentView.value.label
   if (currentView.value.is_standard) {
     let routeName = route.name
-    label = `${routeName} - ${label}`
+    label = `${__(routeName)} - ${label}`
   }
   return {
     title: label,
@@ -1030,21 +1033,24 @@ function listCommands() {
   return [
     {
       id: `list-views-${props.doctype}`,
-      title: 'Switch view',
+      title: __('Switch view'),
+      translate: false,
       group: 'List',
       icon: 'panels-top-left',
       children: async () => viewCommands(),
     },
     {
       id: `list-filters-${props.doctype}`,
-      title: 'Filter list',
+      title: __('Filter list'),
+      translate: false,
       group: 'List',
       icon: 'list-filter',
       children: async () => filterCommands(),
     },
     {
       id: `list-refresh-${props.doctype}`,
-      title: 'Refresh list',
+      title: __('Refresh list'),
+      translate: false,
       group: 'List',
       icon: 'refresh-cw',
       perform: reload,
@@ -1083,7 +1089,12 @@ async function loadFlatFilterOptions() {
   const entries = await Promise.all(
     filters.map(async (filter) => [
       filter.fieldname,
-      statusCommandOptions(filter, await commandFilterOptions(filter), __),
+      commandOptionLabels(
+        props.doctype,
+        filter,
+        statusCommandOptions(filter, await commandFilterOptions(filter), __),
+        __,
+      ),
     ]),
   )
   flatFilterOptions.value = Object.fromEntries(entries)
@@ -1106,15 +1117,16 @@ async function filterCommands() {
   const quick = quickFilterList.value.filter(isFilterableField)
   const configured = new Set(quick.map((filter) => filter.fieldname))
   const commands = [
-    ...quick.map((filter) => filterFieldCommand(filter, 'Quick filters')),
+    ...quick.map((filter) => filterFieldCommand(filter, __('Quick filters'))),
     ...(await otherFilterFields(configured)).map((field) =>
-      filterFieldCommand(field, 'All fields'),
+      filterFieldCommand(field, __('All fields')),
     ),
   ]
   if (Object.keys(list.value.params?.filters || {}).length) {
     commands.unshift({
       id: `list-filter-clear-${props.doctype}`,
-      title: 'Clear all filters',
+      title: __('Clear all filters'),
+      translate: false,
       icon: 'filter-x',
       perform: () => updateFilter({}),
     })
@@ -1147,7 +1159,12 @@ function filterFieldCommand(filter, group) {
 }
 
 async function quickFilterOptionCommands(filter) {
-  const options = statusCommandOptions(filter, await commandFilterOptions(filter), __)
+  const options = commandOptionLabels(
+        props.doctype,
+        filter,
+        statusCommandOptions(filter, await commandFilterOptions(filter), __),
+        __,
+      )
   const current = currentFilterValue(filter)
   return options.map((option) => ({
     id: `list-filter-${filter.fieldname}-${option.value}`,

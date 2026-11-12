@@ -11,7 +11,7 @@
     v-model="filter.value"
     class="form-control cursor-pointer [&_select]:cursor-pointer"
     type="select"
-    :options="filter.options"
+    :options="selectOptions"
     :placeholder="__(filter.label)"
     side="bottom"
     @update:modelValue="updateFilter(filter, $event)"
@@ -51,14 +51,21 @@ import StatusFilter from '@/components/ConditionsFilter/StatusFilter.vue'
 import { isStatusFilter } from '@/components/ConditionsFilter/statusFilter'
 import { FormControl, DatePicker, DateTimePicker } from 'frappe-ui'
 import { getFormat } from '@/utils'
+import { quickFilterSelectOptions } from '@/translation'
 import { useDebounceFn } from '@vueuse/core'
-import { reactive, watch } from 'vue'
+import { computed, reactive, watch } from 'vue'
 
 const props = defineProps({
   filter: { type: Object, required: true },
+  doctype: { type: String, default: '' },
 })
 
 const filter = reactive(props.filter)
+
+// Shipped Select vocabularies are shown translated; the value stays the stored one.
+const selectOptions = computed(() =>
+  quickFilterSelectOptions(props.doctype, filter, __),
+)
 
 const emit = defineEmits(['applyQuickFilter'])
 

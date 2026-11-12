@@ -115,14 +115,14 @@
           </div>
         </div>
         <DealsListView
-          v-if="tab.label === 'Deals' && rows.length"
+          v-if="tab.name === 'Deals' && rows.length"
           class="mt-4"
           :rows="rows"
           :columns="columns"
           :options="{ selectable: false, showTooltip: false }"
         />
         <ContactsListView
-          v-if="tab.label === 'Contacts' && rows.length"
+          v-if="tab.name === 'Contacts' && rows.length"
           class="mt-4"
           :rows="rows"
           :columns="columns"

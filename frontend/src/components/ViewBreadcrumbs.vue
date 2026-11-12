@@ -1,8 +1,8 @@
 <template>
-  <div class="flex items-center">
+  <div class="flex min-w-0 items-center">
     <router-link
       :to="{ name: routeName }"
-      class="px-0.5 py-1 text-lg-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
+      class="min-w-0 truncate px-0.5 py-1 text-lg-medium focus:outline-none focus-visible:ring-2 focus-visible:ring-outline-gray-3"
       :class="[
         viewControls && viewControls.viewsDropdownOptions
           ? 'text-ink-gray-5 hover:text-ink-gray-7'
@@ -13,7 +13,7 @@
     </router-link>
     <span
       v-if="viewControls && viewControls.viewsDropdownOptions"
-      class="mx-0.5 text-base text-ink-gray-4"
+      class="mx-0.5 shrink-0 text-base text-ink-gray-4"
       aria-hidden="true"
     >
       /
@@ -25,7 +25,7 @@
       <template #default="{ open }">
         <Button
           variant="ghost"
-          class="text-lg-medium text-nowrap"
+          class="!min-w-0 !shrink text-lg-medium text-nowrap"
           :label="viewLabel"
           :iconRight="open ? 'lucide-chevron-up' : 'lucide-chevron-down'"
         >

@@ -19,14 +19,12 @@
         />
         <Button
           v-if="editing"
-          :label="__('Chart')"
-          iconLeft="lucide-plus"
+          v-bind="headerButton(__('Chart'), 'lucide-plus')"
           @click="showAddChartModal = true"
         />
         <Button
           v-if="editing && isAdmin()"
-          :label="__('Reset to Default')"
-          :iconLeft="LucideUndo2"
+          v-bind="headerButton(__('Reset to Default'), LucideUndo2)"
           @click="resetToDefault"
         />
         <Button v-if="editing" :label="__('Cancel')" @click="cancel" />
@@ -41,12 +39,12 @@
       </template>
     </LayoutHeader>
 
-    <div class="p-5 pb-2 flex items-center gap-4">
+    <div class="p-5 pb-2 flex flex-wrap items-center gap-x-4 gap-y-2">
       <Dropdown
         v-if="!showDatePicker"
         v-model="preset"
         :options="options"
-        class="form-control"
+        class="form-control max-sm:w-full"
         :placeholder="__('Select Range')"
         :button="{
           label: __(preset),
@@ -60,7 +58,7 @@
       <DateRangePicker
         v-else
         ref="datePickerRef"
-        class="!w-48"
+        class="!w-48 max-sm:!w-full"
         :model-value="filters.period ? parseDateRange(filters.period) : []"
         variant="outline"
         :placeholder="__('Period')"
@@ -84,7 +82,7 @@
       </DateRangePicker>
       <Link
         v-if="isAdmin() || isManager()"
-        class="form-control w-48"
+        class="form-control w-48 max-sm:w-full"
         variant="outline"
         :value="filters.user && getUser(filters.user).full_name"
         doctype="User"
@@ -146,6 +144,7 @@ import Link from '@/components/Controls/Link.vue'
 import { usersStore } from '@/stores/users'
 import { getSettings } from '@/stores/settings'
 import { copy } from '@/utils'
+import { isMobileView } from '@/composables/settings'
 import {
   getLastXDays,
   formatter,
@@ -165,6 +164,15 @@ const { users, getUser, isManager, isAdmin } = usersStore()
 const { brand } = getSettings()
 
 const editing = ref(false)
+
+// On phones the edit-mode header (Chart / Reset / Cancel / Save) is wider than
+// the screen once the labels are translated, so the two long actions collapse
+// to icon buttons there; desktop keeps the labelled buttons.
+function headerButton(label: string, icon: unknown) {
+  return isMobileView.value
+    ? { icon, tooltip: label, 'aria-label': label }
+    : { label, iconLeft: icon }
+}
 
 const showDatePicker = ref(false)
 const datePickerRef = ref(null)

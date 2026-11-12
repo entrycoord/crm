@@ -29,7 +29,7 @@
                 {{ quotation.name }}
               </span>
               <Badge
-                :label="quotation.status"
+                :label="quotation.status ? __(quotation.status) : quotation.status"
                 :theme="statusTheme(quotation.status)"
                 variant="subtle"
                 size="sm"

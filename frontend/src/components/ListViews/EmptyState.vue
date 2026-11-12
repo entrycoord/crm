@@ -1,16 +1,16 @@
 <template>
   <div class="relative flex h-full w-full justify-center">
     <div
-      class="absolute left-1/2 flex -translate-x-1/2 flex-col items-center gap-3"
+      class="absolute left-1/2 flex min-w-[16rem] max-w-full -translate-x-1/2 flex-col items-center gap-3"
       :class="widthClass"
       :style="{ top: top }"
     >
       <Icon :icon="icon" class="size-7.5 text-ink-gray-5" />
       <div class="flex flex-col items-center gap-1">
-        <span class="text-lg-medium text-ink-gray-8">
+        <span class="text-balance text-center text-lg-medium text-ink-gray-8">
           {{ computedTitle }}
         </span>
-        <span class="text-center text-p-base text-ink-gray-6">
+        <span class="text-balance text-center text-p-base text-ink-gray-6">
           {{ computedDescription }}
         </span>
       </div>

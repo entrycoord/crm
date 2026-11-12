@@ -36,6 +36,7 @@ function translate(message, replace, context = null) {
 
 // Only translate unmodified, shipped Select definitions; custom values are data.
 const shippedSelectOptions = {
+  "Contact::status": "Passive\nOpen\nReplied",
   "CRM Availability Status::category": "Active\nAway\nUnavailable",
   "CRM Availability Status::color": "black\ngray\nblue\ngreen\nred\npink\norange\namber\nyellow\ncyan\nteal\nviolet\npurple",
   "CRM Form Script::view": "Form\nList",
@@ -75,6 +76,26 @@ const shippedSelectOptions = {
   "CRM Dropdown Item::type": "Route\nSeparator"
 }
 
+// True when `values` are exactly the shipped options of the Select field (blank entries,
+// e.g. the empty choice the quick-filter API prepends, are ignored).
+export function isShippedSelect(doctype, fieldname, values) {
+  const shipped = shippedSelectOptions[`${doctype}::${fieldname}`]
+  if (shipped === undefined || !Array.isArray(values)) return false
+  const named = (list) => list.filter((value) => value !== '').join('\n')
+  return named(values) === named(shipped.split('\n'))
+}
+
+// Quick-filter Select choices ({label, value}[]): shipped ones are translated, a
+// customised option list is customer data and stays as typed.
+export function quickFilterSelectOptions(doctype, filter, translateLabel) {
+  const options = Array.isArray(filter?.options) ? filter.options : []
+  const shipped = isShippedSelect(doctype, filter?.fieldname, options.map((o) => o.value))
+  return options.map((option) => ({
+    ...option,
+    label: shipped && option.label ? translateLabel(option.label) : option.label,
+  }))
+}
+
 export function selectOptionLabels(doctype, field, translateLabel) {
   const shipped = !field.is_custom_field && !field.custom &&
     shippedSelectOptions[`${doctype}::${field.fieldname}`] === field.options
@@ -82,4 +103,15 @@ export function selectOptionLabels(doctype, field, translateLabel) {
     label: shipped ? translateLabel(value) : value,
     value,
   }))
+}
+
+// Display label of a Select column in a list view: only shipped Select fields are
+// translated. List columns often carry no option list, so a missing list counts as
+// the shipped one; a list that differs from the shipped one is customer data.
+export function selectColumnLabel(doctype, column, value, translateLabel) {
+  const shippedOptions = shippedSelectOptions[`${doctype}::${column?.key}`]
+  const shipped =
+    shippedOptions !== undefined &&
+    (!column.options || column.options === shippedOptions)
+  return shipped ? translateLabel(value) : value
 }

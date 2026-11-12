@@ -212,8 +212,22 @@ const fields = computed(() => {
         !existingFields.includes(field.fieldname)
       )
     })
-    .map((field) => ({ ...field, value: field.fieldname }))
+    // `description` renders as a second line in the dropdown, which has no max
+    // width. The label is display text; `sourceLabel` keeps the English one that
+    // is saved with the column.
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    .map(({ description, ...field }) => ({
+      ...field,
+      label: fieldLabel(field),
+      sourceLabel: field.label,
+      value: field.fieldname,
+    }))
 })
+
+function fieldLabel(field) {
+  // "Like" is the filter operator; the field holds who liked the record.
+  return field.fieldname === '_liked_by' ? __('Liked By') : __(field.label)
+}
 
 function addColumn(c) {
   if (!c) return
@@ -224,7 +238,7 @@ function addColumn(c) {
     : 'left'
 
   let _column = {
-    label: c.label,
+    label: c.sourceLabel ?? c.label,
     type: c.fieldtype,
     key: c.fieldname,
     options: c.options,

@@ -92,7 +92,7 @@ def get_filterable_fields(doctype: str):
 			"options": "User",
 		},
 		{"fieldname": "_user_tags", "fieldtype": "Data", "label": "Tags"},
-		{"fieldname": "_liked_by", "fieldtype": "Data", "label": "Like"},
+		{"fieldname": "_liked_by", "fieldtype": "Data", "label": "Liked By"},
 		{"fieldname": "_comments", "fieldtype": "Text", "label": "Comments"},
 		{"fieldname": "_assign", "fieldtype": "Text", "label": "Assigned To"},
 		{"fieldname": "creation", "fieldtype": "Datetime", "label": "Created On"},
@@ -146,11 +146,9 @@ def get_group_by_fields(doctype: str):
 		{"label": "Last Modified", "fieldname": "modified"},
 		{"label": "Modified By", "fieldname": "modified_by"},
 		{"label": "Owner", "fieldname": "owner"},
-		{"label": "Like", "fieldname": "_liked_by"},
+		{"label": "Liked By", "fieldname": "_liked_by"},
 		{"label": "Assigned To", "fieldname": "_assign"},
 		{"label": "Comments", "fieldname": "_comments"},
-		{"label": "Created On", "fieldname": "creation"},
-		{"label": "Modified On", "fieldname": "modified"},
 	]
 
 	for field in standard_fields:
@@ -515,7 +513,7 @@ def get_data(
 		},
 		{"label": "Assigned To", "fieldtype": "Text", "fieldname": "_assign"},
 		{"label": "Owner", "fieldtype": "Link", "fieldname": "owner", "options": "User"},
-		{"label": "Like", "fieldtype": "Data", "fieldname": "_liked_by"},
+		{"label": "Liked By", "fieldtype": "Data", "fieldname": "_liked_by"},
 	]
 
 	for field in std_fields:

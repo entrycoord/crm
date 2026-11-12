@@ -63,6 +63,7 @@ import {
   ListHeaderItem,
   ListRowItem,
 } from 'frappe-ui/experimental'
+import { doctypeLabel } from '@/utils/doctypeLabel'
 import { ref } from 'vue'
 
 defineProps({
@@ -142,7 +143,5 @@ const viewLinkedDoc = (doc) => {
   window.open(`${base}/${page}/${id}`)
 }
 
-const getDoctypeName = (doctype) => {
-  return doctype.replace(/^(CRM|FCRM)\s*/, '')
-}
+const getDoctypeName = (doctype) => doctypeLabel(doctype)
 </script>

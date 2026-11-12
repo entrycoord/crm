@@ -99,7 +99,7 @@
               </div>
             </div>
             <div class="text-base text-ink-gray-6 w-1/6">
-              {{ template.reference_doctype.replace('CRM ', '') }}
+              {{ referenceDoctypeLabel(template.reference_doctype) }}
             </div>
             <div class="flex items-center justify-between w-1/6">
               <Switch
@@ -155,6 +155,7 @@ import { useBroadcast } from '@/composables/useBroadcast'
 import { TextInput, FormControl, Switch, Dropdown, toast } from 'frappe-ui'
 import { ref, computed, inject } from 'vue'
 import { ConfirmDelete } from '../../../utils'
+import { referenceDoctypeLabel } from '@/utils/referenceDoctypeLabel'
 
 const emit = defineEmits(['updateStep'])
 

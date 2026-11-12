@@ -1,7 +1,9 @@
+import { referenceDoctypeLabel } from '@/utils/referenceDoctypeLabel'
+
 export class CRMTask {
   onRender() {
     if (this.doc.reference_doctype && this.doc.reference_docname) {
-      let label = this.doc.reference_doctype.replace('CRM ', '')
+      let label = referenceDoctypeLabel(this.doc.reference_doctype)
 
       this.actions = [
         {

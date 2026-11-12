@@ -5,6 +5,7 @@ import { getMeta } from '@/stores/meta'
 import { gemoji } from 'gemoji'
 import DOMPurify from 'dompurify'
 import { createToast, scriptToast } from '@/utils/scriptToast'
+import { taskSelectOptions } from '@/utils/taskOptions'
 import { toast, dayjsLocal, dayjs, getConfig } from 'frappe-ui'
 import { h } from 'vue'
 
@@ -17,18 +18,18 @@ export function formatTime(seconds) {
   let formattedTime = ''
 
   if (days > 0) {
-    formattedTime += `${days}d `
+    formattedTime += `${__('{0}d', [days])} `
   }
 
   if (hours > 0 || days > 0) {
-    formattedTime += `${hours}h `
+    formattedTime += `${__('{0}h', [hours])} `
   }
 
   if (minutes > 0 || hours > 0 || days > 0) {
-    formattedTime += `${minutes}m `
+    formattedTime += `${__('{0}m', [minutes])} `
   }
 
-  formattedTime += `${remainingSeconds}s`
+  formattedTime += __('{0}s', [remainingSeconds])
 
   return formattedTime.trim()
 }
@@ -229,38 +230,34 @@ export function prettyDate(date, mini = false) {
 }
 
 export function taskStatusOptions(action, data) {
-  let options = ['Backlog', 'Todo', 'In Progress', 'Done', 'Canceled']
   let statusMeta = getMeta('CRM Task')
     .getFields()
     ?.find((field) => field.fieldname == 'status')
-  if (statusMeta) {
-    options = statusMeta.options
-      .map((option) => option.value)
-      .filter((option) => option)
-  }
-  return options.map((status) => {
+  let options = taskSelectOptions(statusMeta, [
+    'Backlog',
+    'Todo',
+    'In Progress',
+    'Done',
+    'Canceled',
+  ])
+  return options.map(({ value: status, label }) => {
     return {
       icon: () => h(TaskStatusIcon, { status }),
-      label: status,
+      label,
       onClick: () => action && action(status, data),
     }
   })
 }
 
 export function taskPriorityOptions(action, data) {
-  let options = ['Low', 'Medium', 'High']
   let priorityMeta = getMeta('CRM Task')
     .getFields()
     ?.find((field) => field.fieldname == 'priority')
-  if (priorityMeta) {
-    options = priorityMeta.options
-      .map((option) => option.value)
-      .filter((option) => option)
-  }
+  let options = taskSelectOptions(priorityMeta, ['Low', 'Medium', 'High'])
 
-  return options.map((priority) => {
+  return options.map(({ value: priority, label }) => {
     return {
-      label: priority,
+      label,
       icon: () => h(TaskPriorityIcon, { priority }),
       onClick: () => action && action(priority, data),
     }

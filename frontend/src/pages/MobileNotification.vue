@@ -11,8 +11,8 @@
     <template #right-header>
       <Button
         :tooltip="__('Mark all as read')"
-        :label="__('Mark all as read')"
-        :iconLeft="MarkAsDoneIcon"
+        :aria-label="__('Mark all as read')"
+        :icon="MarkAsDoneIcon"
         @click="() => mark_as_read.reload()"
       />
     </template>
@@ -47,7 +47,7 @@
               {{ n.from_user.full_name }}
             </span>
             <span>
-              {{ __('mentioned you in {0}', [n.reference_doctype]) }}
+              {{ __('mentioned you in {0}', [referenceDoctypeLabel(n.reference_doctype)]) }}
             </span>
             <span class="font-medium text-ink-gray-9">
               {{ n.reference_name }}
@@ -76,6 +76,7 @@ import UserAvatar from '@/components/UserAvatar.vue'
 import { notifications, notificationsStore } from '@/stores/notifications'
 import { globalStore } from '@/stores/global'
 import { timeAgo, sanitizeHTML } from '@/utils'
+import { referenceDoctypeLabel } from '@/utils/referenceDoctypeLabel'
 import { Breadcrumbs } from 'frappe-ui'
 import { onMounted, onBeforeUnmount } from 'vue'
 

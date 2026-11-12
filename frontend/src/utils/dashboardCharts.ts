@@ -7,6 +7,9 @@ import type {
   SeriesStyle,
   TimeGrain,
 } from 'frappe-ui/charts'
+import { linkValueLabel } from '@/utils/linkValueLabel'
+
+export type Translate = (text: string) => string
 
 type Row = Record<string, unknown>
 
@@ -19,6 +22,7 @@ interface ValueAxisConfig {
 
 interface SeriesConfig {
   name: string
+  label?: string
   type: 'bar' | 'line' | 'area'
   color?: string
   axis?: 'y' | 'y2'
@@ -75,16 +79,46 @@ export function toNumberCardProps(config: NumberChartConfig): NumberCardProps {
   return props
 }
 
-export function toDonutChartProps(config: DonutChartConfig): DonutChartProps {
+// Stage and lost-reason names come from records: only the names CRM ships are
+// translated, the stored values and the customer's own names stay exact.
+function translateCategories(
+  data: Row[] | undefined,
+  key: string | undefined,
+  translate: Translate,
+): Row[] {
+  const rows = data || []
+  const display: Record<string, (value: string) => string> = {
+    stage: (value) =>
+      value === 'Leads'
+        ? translate(value)
+        : linkValueLabel('CRM Deal Status', value, translate),
+    reason: (value) => linkValueLabel('CRM Lost Reason', value, translate),
+  }
+  const format = key ? display[key] : undefined
+  if (!key || !format) return rows
+  return rows.map((row) =>
+    typeof row[key] === 'string' ? { ...row, [key]: format(row[key] as string) } : row,
+  )
+}
+
+export function toDonutChartProps(
+  config: DonutChartConfig,
+  translate: Translate = (text) => text,
+): DonutChartProps {
   return {
     title: config.title,
     subtitle: config.subtitle,
-    data: config.data || [],
+    data: translateCategories(config.data, config.categoryColumn, translate),
     category: config.categoryColumn,
     value: config.valueColumn,
     maxSlices: config.maxSliceCount,
     showDataLabels: config.showInlineLabels,
     palette: config.colors,
+    // frappe-ui prints the value column's key under the total; name it in the user's language
+    centerLabel: translate(
+      config.valueColumn.charAt(0).toUpperCase() +
+        config.valueColumn.slice(1).replace(/_/g, ' '),
+    ),
     echartOptions: config.echartOptions,
   }
 }
@@ -109,11 +143,15 @@ function toValueAxis(
   )
 }
 
-export function toAxisChartProps(config: AxisChartConfig): BarChartProps {
+export function toAxisChartProps(
+  config: AxisChartConfig,
+  translate: Translate = (text) => text,
+): BarChartProps {
   const series = config.series || []
   const seriesConfig: Record<string, SeriesStyle> = {}
   series.forEach((s, i) => {
     seriesConfig[s.name] = {
+      label: s.label ? translate(s.label) : undefined,
       type: s.type,
       color: s.color || config.colors?.[i],
       showDataLabels: s.showDataLabels,
@@ -129,7 +167,7 @@ export function toAxisChartProps(config: AxisChartConfig): BarChartProps {
   return {
     title: config.title,
     subtitle: config.subtitle,
-    data: config.data || [],
+    data: translateCategories(config.data, config.xAxis?.key, translate),
     x: config.xAxis?.key as string,
     y: series.filter((s) => s.axis !== 'y2').map((s) => s.name),
     y2: y2.length ? y2 : undefined,

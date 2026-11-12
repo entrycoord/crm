@@ -6,6 +6,9 @@ import { createDialog } from './utils/dialogs'
 import { initSocket } from './socket'
 import router from './router'
 import translationPlugin from './translation'
+import { loadDayjsLocale } from './dayjsLocale'
+import * as frappeUiEditor from 'frappe-ui/editor'
+import { installFrappeUiI18n } from './utils/frappeUiI18n'
 import App from './App.vue'
 
 import {
@@ -19,6 +22,7 @@ import {
   Badge,
   setConfig,
   frappeRequest,
+  dayjs,
 } from 'frappe-ui'
 
 import { telemetryPlugin } from '@framework/ui/telemetry'
@@ -47,6 +51,8 @@ app.use(spritePlugin)
 app.use(pinia)
 app.use(router)
 app.use(translationPlugin)
+// frappe-ui's editor toolbar presets carry English labels; translate them via __()
+installFrappeUiI18n(frappeUiEditor)
 for (let key in globalComponents) {
   app.component(key, globalComponents[key])
 }
@@ -55,21 +61,23 @@ app.use(telemetryPlugin, { app_name: 'crm' })
 app.config.globalProperties.$dialog = createDialog
 
 let socket
+function mountApp() {
+  socket = initSocket()
+  app.config.globalProperties.$socket = socket
+  loadDayjsLocale(window.lang, dayjs).finally(() => app.mount('#app'))
+}
+
 if (import.meta.env.DEV) {
   frappeRequest({ url: '/api/method/crm.www.crm.get_context_for_dev' }).then(
     (values) => {
       for (let key in values) {
         window[key] = values[key]
       }
-      socket = initSocket()
-      app.config.globalProperties.$socket = socket
-      app.mount('#app')
+      mountApp()
     },
   )
 } else {
-  socket = initSocket()
-  app.config.globalProperties.$socket = socket
-  app.mount('#app')
+  mountApp()
 }
 
 if (import.meta.env.DEV) {

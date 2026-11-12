@@ -75,6 +75,7 @@
             v-model="user.doc.time_zone"
             class="w-40"
             :options="getTimezoneOptions()"
+            :placeholder="__('Select option')"
           />
         </div>
       </div>

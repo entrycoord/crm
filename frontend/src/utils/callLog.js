@@ -1,16 +1,24 @@
 import { formatDate } from '@/utils'
+import { formatDurationDisplay } from '@/utils/durationDisplay'
 import { timestampCell } from '@/composables/useTimelinePreferences'
 import { getMeta } from '@/stores/meta'
 
 const { getFormattedPercent, getFormattedFloat, getFormattedCurrency } =
   getMeta('CRM Call Log')
 
+// The server's `_duration` is a fixed English "1m 5s" string; build the label from the
+// raw seconds so the unit abbreviations are translated.
+export function callDurationLabel(log) {
+  const label = formatDurationDisplay(log?.duration)
+  return label || log?._duration
+}
+
 export function getCallLogDetail(row, log, columns = []) {
   let incoming = log.type === 'Incoming'
 
   if (row === 'duration') {
     return {
-      label: log._duration,
+      label: callDurationLabel(log),
       icon: 'clock',
     }
   } else if (row === 'caller') {

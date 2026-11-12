@@ -248,17 +248,13 @@ import RatingInput from '@/components/Controls/RatingInput.vue'
 import MultipleAvatar from '@/components/MultipleAvatar.vue'
 import ListBulkActions from '@/components/ListBulkActions.vue'
 import ListRows from '@/components/ListViews/ListRows.vue'
-import { isTranslatable } from '@/utils'
+import { selectColumnLabel } from '@/translation'
+import { linkValueLabel } from '@/utils/linkValueLabel'
 import { formatDurationDisplay } from '@/utils/durationDisplay'
 import { Avatar, Dropdown, Tooltip } from 'frappe-ui'
-import {
-  ListView,
-  ListHeader,
-  ListHeaderItem,
-  ListSelectBanner,
-  ListRowItem,
-  ListFooter,
-} from 'frappe-ui/experimental'
+import { ListView, ListHeader, ListHeaderItem, ListRowItem } from 'frappe-ui/experimental'
+import ListSelectBanner from '@/components/ListViews/ListSelectBanner.vue'
+import ListFooter from '@/components/ListViews/ListFooter.vue'
 import { sessionStore } from '@/stores/session'
 import { ref, computed, watch } from 'vue'
 import { useRoute } from 'vue-router'
@@ -299,7 +295,9 @@ function onColumnWidthUpdated({ width, save }, column) {
 
 function getLabel(label, column) {
   if (column.type === 'Duration') return formatDurationDisplay(label)
-  if (column.options && isTranslatable(column.options)) return __(label)
+  if (column.type === 'Select')
+    return selectColumnLabel('CRM Lead', column, label, __)
+  if (column.options) return linkValueLabel(column.options, label, __)
   return label
 }
 

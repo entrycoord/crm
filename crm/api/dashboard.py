@@ -482,9 +482,9 @@ def get_average_time_to_close_a_lead(
 		"title": _("Avg. time to close a lead"),
 		"tooltip": _("Average time taken from lead creation to deal closure"),
 		"value": current_avg_lead,
-		"suffix": " days",
+		"suffix": " " + _("days"),
 		"delta": delta_lead,
-		"deltaSuffix": " days",
+		"deltaSuffix": " " + _("days"),
 		"negativeIsBetter": True,
 	}
 
@@ -545,9 +545,9 @@ def get_average_time_to_close_a_deal(
 		"title": _("Avg. time to close a deal"),
 		"tooltip": _("Average time taken from deal creation to deal closure"),
 		"value": current_avg_deal,
-		"suffix": " days",
+		"suffix": " " + _("days"),
 		"delta": delta_deal,
-		"deltaSuffix": " days",
+		"deltaSuffix": " " + _("days"),
 		"negativeIsBetter": True,
 	}
 
@@ -647,9 +647,9 @@ def get_sales_trend(from_date: str | None = None, to_date: str | None = None, us
 			"title": _("Count"),
 		},
 		"series": [
-			{"name": "leads", "type": "line", "showDataPoints": True},
-			{"name": "deals", "type": "line", "showDataPoints": True},
-			{"name": "won_deals", "type": "line", "showDataPoints": True},
+			{"name": "leads", "label": "Leads", "type": "line", "showDataPoints": True},
+			{"name": "deals", "label": "Deals", "type": "line", "showDataPoints": True},
+			{"name": "won_deals", "label": "Won Deals", "type": "line", "showDataPoints": True},
 		],
 	}
 
@@ -727,8 +727,8 @@ def get_forecasted_revenue(from_date: str | None = None, to_date: str | None = N
 			"title": _("Revenue") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "forecasted", "type": "line", "showDataPoints": True},
-			{"name": "actual", "type": "line", "showDataPoints": True},
+			{"name": "forecasted", "label": "Forecasted", "type": "line", "showDataPoints": True},
+			{"name": "actual", "label": "Actual", "type": "line", "showDataPoints": True},
 		],
 	}
 
@@ -798,6 +798,7 @@ def get_funnel_conversion(from_date: str | None = None, to_date: str | None = No
 		"series": [
 			{
 				"name": "count",
+				"label": "Count",
 				"type": "bar",
 				"echartOptions": {
 					"colorBy": "data",
@@ -851,7 +852,7 @@ def get_deals_by_stage_axis(
 		},
 		"yAxis": {"title": _("Count")},
 		"series": [
-			{"name": "count", "type": "bar"},
+			{"name": "count", "label": "Count", "type": "bar"},
 		],
 	}
 
@@ -945,7 +946,7 @@ def get_lost_deal_reasons(from_date: str | None = None, to_date: str | None = No
 			"title": _("Count"),
 		},
 		"series": [
-			{"name": "count", "type": "bar"},
+			{"name": "count", "label": "Count", "type": "bar"},
 		],
 	}
 
@@ -968,7 +969,7 @@ def get_leads_by_source(from_date: str | None = None, to_date: str | None = None
 
 	query = (
 		frappe.qb.from_(CRMLead)
-		.select(IfNull(CRMLead.source, "Empty").as_("source"), Count("*").as_("count"))
+		.select(IfNull(CRMLead.source, _("Empty")).as_("source"), Count("*").as_("count"))
 		.where(Date(CRMLead.creation).between(from_date, to_date))
 		.groupby(CRMLead.source)
 		.orderby(Count("*"), order=frappe.qb.desc)
@@ -1006,7 +1007,7 @@ def get_deals_by_source(from_date: str | None = None, to_date: str | None = None
 
 	query = (
 		frappe.qb.from_(CRMDeal)
-		.select(IfNull(CRMDeal.source, "Empty").as_("source"), Count("*").as_("count"))
+		.select(IfNull(CRMDeal.source, _("Empty")).as_("source"), Count("*").as_("count"))
 		.where(Date(CRMDeal.creation).between(from_date, to_date))
 		.groupby(CRMDeal.source)
 		.orderby(Count("*"), order=frappe.qb.desc)
@@ -1045,7 +1046,7 @@ def get_deals_by_territory(from_date: str | None = None, to_date: str | None = N
 	query = (
 		frappe.qb.from_(CRMDeal)
 		.select(
-			IfNull(CRMDeal.territory, "Empty").as_("territory"),
+			IfNull(CRMDeal.territory, _("Empty")).as_("territory"),
 			Count("*").as_("deals"),
 			Sum(Coalesce(CRMDeal.deal_value, 0) * IfNull(CRMDeal.exchange_rate, 1)).as_("value"),
 		)
@@ -1078,8 +1079,8 @@ def get_deals_by_territory(from_date: str | None = None, to_date: str | None = N
 			"title": _("Deal value") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "deals", "type": "bar"},
-			{"name": "value", "type": "line", "showDataPoints": True, "axis": "y2"},
+			{"name": "deals", "label": "Deals", "type": "bar"},
+			{"name": "value", "label": "Value", "type": "line", "showDataPoints": True, "axis": "y2"},
 		],
 	}
 
@@ -1108,7 +1109,7 @@ def get_deals_by_salesperson(
 		.left_join(User)
 		.on(User.name == CRMDeal.deal_owner)
 		.select(
-			IfNull(User.full_name, CRMDeal.deal_owner).as_("salesperson"),
+			Coalesce(User.full_name, CRMDeal.deal_owner, _("Unassigned")).as_("salesperson"),
 			Count("*").as_("deals"),
 			Sum(Coalesce(CRMDeal.deal_value, 0) * IfNull(CRMDeal.exchange_rate, 1)).as_("value"),
 		)
@@ -1141,8 +1142,8 @@ def get_deals_by_salesperson(
 			"title": _("Deal value") + f" ({get_base_currency_symbol()})",
 		},
 		"series": [
-			{"name": "deals", "type": "bar"},
-			{"name": "value", "type": "line", "showDataPoints": True, "axis": "y2"},
+			{"name": "deals", "label": "Deals", "type": "bar"},
+			{"name": "value", "label": "Value", "type": "line", "showDataPoints": True, "axis": "y2"},
 		],
 	}
 

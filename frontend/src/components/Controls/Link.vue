@@ -78,7 +78,7 @@
 
 <script setup>
 import Autocomplete from '@/components/frappe-ui/Autocomplete.vue'
-import { isTranslatable } from '@/utils'
+import { linkValueLabel } from '@/utils/linkValueLabel'
 import { watchDebounced } from '@vueuse/core'
 import { createResource } from 'frappe-ui'
 import { useAttrs, computed, ref, useId } from 'vue'
@@ -104,8 +104,7 @@ const value = computed({
   get: () => {
     let v = valuePropPassed.value ? attrs.value : props.modelValue
 
-    if (isTranslatable(props.doctype)) return __(v)
-    return v
+    return linkValueLabel(props.doctype, v, __)
   },
   set: (val) => {
     if (!val?.value) return

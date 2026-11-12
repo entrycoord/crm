@@ -24,13 +24,13 @@
           />
         </div>
         <div
-          class="mx-4 flex items-center gap-2"
+          class="mx-4 flex items-center gap-2 max-sm:flex-wrap"
           :class="from.length ? '' : 'border-t pt-2.5'"
         >
           <span class="text-xs text-ink-gray-4 mr-2">{{ __('TO') }}:</span>
           <EmailMultiSelect
             v-model="toEmails"
-            class="flex-1"
+            class="min-w-0 flex-1 max-sm:min-w-[10rem]"
             variant="ghost"
             :validate="validateEmail"
             :fetchContacts="true"
@@ -38,7 +38,7 @@
               (value) => __('{0} is an invalid email address', [value])
             "
           />
-          <div class="flex gap-1.5">
+          <div class="flex shrink-0 gap-1.5 max-sm:ml-auto">
             <Button
               :label="__('CC')"
               variant="ghost"
@@ -140,9 +140,9 @@
           </AttachmentItem>
         </div>
         <div
-          class="flex justify-between gap-2 overflow-hidden border-t px-4 py-2.5"
+          class="flex justify-between gap-2 overflow-hidden border-t px-4 py-2.5 max-sm:flex-col"
         >
-          <div class="flex gap-1 items-center overflow-x-auto">
+          <div class="flex min-w-0 items-center gap-1 overflow-x-auto">
             <Button
               :tooltip="__('Insert Email Template')"
               variant="ghost"
@@ -176,7 +176,7 @@
               />
             </IconPicker>
           </div>
-          <div class="mt-2 flex items-center justify-end space-x-2 sm:mt-0">
+          <div class="flex shrink-0 items-center justify-end space-x-2">
             <Button v-bind="discardButtonProps || {}" :label="__('Discard')" />
             <div class="flex">
               <Button
@@ -184,7 +184,11 @@
                 v-bind="submitButtonProps || {}"
                 :class="{ 'rounded-r-none': scheduleSend }"
                 :disabled="submitButtonProps?.disabled || sendBlocked"
-                :label="`${__('Send')} (${submitShortcutLabel})`"
+                :label="
+                  isMobileView
+                    ? __('Send')
+                    : `${__('Send')} (${submitShortcutLabel})`
+                "
               />
               <ScheduleSendButton
                 v-if="scheduleSend"
@@ -227,6 +231,7 @@ import {
 } from 'frappe-ui/editor'
 import { useTelemetry } from '@framework/ui/telemetry'
 import { useDocument } from '@/data/document'
+import { isMobileView } from '@/composables/settings'
 import { validateEmail, submitShortcutLabel } from '@/utils'
 import Paragraph from '@tiptap/extension-paragraph'
 import { ref, computed, nextTick, inject, watch } from 'vue'

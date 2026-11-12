@@ -88,6 +88,7 @@ def get_boot():
 			"cloud_settings": get_cloud_settings(),
 			"translated_doctypes": get_translated_doctypes(),
 			"translated_messages": get_crm_translations_for_boot(),
+			"lang": frappe.local.lang,
 			"timezone": {
 				"system": get_system_timezone(),
 				"user": frappe.db.get_value("User", frappe.session.user, "time_zone")
