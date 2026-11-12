@@ -14,19 +14,20 @@
         <p v-if="branding.message" class="mt-3 whitespace-pre-line text-p-sm text-ink-gray-6">{{ branding.message }}</p>
         <p v-if="about.loading" role="status" class="mt-3 text-sm text-ink-gray-5">{{ __('Loading About information…') }}</p>
         <p v-else-if="about.error || !about.data" role="status" class="mt-3 text-sm text-ink-gray-5">{{ __('About information is unavailable.') }}</p>
-        <div v-if="about.data?.release" class="mt-3 text-p-sm text-ink-gray-5">{{ __('Release') }}: {{ about.data.release }}</div>
-        <div class="mt-3 flex flex-col gap-2">
-          <div v-for="app in about.data?.apps || []" :key="app.app" class="flex items-baseline justify-between gap-3">
-            <span class="text-base text-ink-gray-8">{{ __(app.title) }}</span>
-            <span class="text-sm text-ink-gray-5">{{ app.version }}</span>
-          </div>
+        <!-- One version for the whole system (the deployed release), not one row per module. -->
+        <div v-if="about.data?.release" class="mt-3 flex items-baseline justify-between gap-3">
+          <span class="text-base text-ink-gray-8">{{ __('Version') }}</span>
+          <span class="text-sm text-ink-gray-5">{{ about.data.release }}</span>
         </div>
         <hr class="border-t my-3" />
         <p v-if="branding.contact" class="mb-2 whitespace-pre-line text-xs text-ink-gray-6">{{ branding.contact }}</p>
         <button :aria-expanded="showLegal" class="text-xs text-ink-gray-4 hover:text-ink-gray-6" @click="showLegal = !showLegal">{{ __('Legal notices') }}</button>
         <div v-if="showLegal" class="mt-2 text-xs text-ink-gray-5">
-          <p class="mb-1">&copy; {{ about.data?.copyright || fallbackCopyright }}</p>
-          <p class="mb-1">{{ __('This system includes free software. It comes with no warranty, to the extent permitted by law. You may redistribute it under the terms of the licenses below.') }}</p>
+          <p v-if="about.data?.legal_notice" class="mb-1 whitespace-pre-line">{{ about.data.legal_notice }}</p>
+          <template v-else>
+            <p class="mb-1">&copy; {{ fallbackCopyright }}</p>
+            <p class="mb-1">{{ __('This system includes free software. It comes with no warranty, to the extent permitted by law. You may redistribute it under the terms of the licenses below.') }}</p>
+          </template>
           <ul class="list-disc pl-4">
             <li v-for="component in components" :key="component.app">
               {{ component.name }} {{ component.version }} &ndash;
