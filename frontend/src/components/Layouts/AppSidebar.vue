@@ -93,7 +93,7 @@
                 v-for="link in section.views"
                 :key="link.key"
                 :route="link.to"
-                :label="__(link.label)"
+                :label="link.translate === false ? link.label : __(link.label)"
                 :active="activeItem === link.key"
                 @click="selectItem($event, link.key)"
               >
@@ -101,12 +101,12 @@
                   <Icon :icon="link.icon" class="size-4 text-ink-gray-7" />
                 </template>
                 <Tooltip
-                  :text="__(link.label)"
+                  :text="link.translate === false ? link.label : __(link.label)"
                   side="right"
                   :hoverDelay="1500"
                   :disabled="isCollapsed"
                 >
-                  <span class="truncate text-sm">{{ __(link.label) }}</span>
+                  <span class="truncate text-sm">{{ link.translate === false ? link.label : __(link.label) }}</span>
                 </Tooltip>
               </SidebarItem>
             </nav>
@@ -232,13 +232,13 @@ import { SignupBanner } from '@framework/ui/components/SignupBanner'
 import { TrialBanner } from '@framework/ui/components/TrialBanner'
 import TrialCard from '@/components/Layouts/TrialCard.vue'
 import { isCloudSettingsAvailable } from '@/composables/cloudSettings'
+import HelpModal from '@/components/Onboarding/HelpModal.vue'
+import GettingStartedBanner from '@/components/Onboarding/GettingStartedBanner.vue'
+import IntermediateStepModal from '@/components/Onboarding/IntermediateStepModal.vue'
 import {
-  HelpModal,
-  GettingStartedBanner,
   useOnboarding,
   showHelpModal,
   minimize,
-  IntermediateStepModal,
 } from '@framework/ui/components/Onboarding'
 import { useTelemetry } from '@framework/ui/telemetry'
 import router from '@/router'
@@ -307,6 +307,7 @@ function parseView(views) {
   return views.map((view) => {
     return {
       label: view.label,
+      translate: false,
       icon: getIcon(view.route_name, view.icon),
       key: view.name,
       to: {
@@ -515,7 +516,7 @@ const steps = reactive([
     onClick: () => {
       minimize.value = true
       showSettings.value = true
-      activeSettingsPage.value = __('Accounts')
+      activeSettingsPage.value = 'Accounts'
       capture('onboarding_step_clicked_connect_your_email')
     },
     condition: () => isManager(),

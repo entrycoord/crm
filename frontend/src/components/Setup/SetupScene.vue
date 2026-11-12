@@ -113,7 +113,7 @@
             style="--r: 2deg; --d: 320ms"
           >
             <div class="flex items-baseline justify-between px-4 pb-2">
-              <span class="text-sm font-medium text-ink-gray-7">Leads</span>
+              <span class="text-sm font-medium text-ink-gray-7">{{ __('Leads') }}</span>
               <span class="text-xs tabular-nums text-ink-gray-5">{{
                 count
               }}</span>
@@ -196,7 +196,7 @@
               /></span>
               <span
                 class="press ml-auto rounded-5 px-2.5 py-1 text-sm font-medium text-ink-gray-8"
-                >Send invites</span
+                >{{ __('Send invites') }}</span
               >
             </div>
           </div>
