@@ -28,7 +28,7 @@
             <p class="mb-1">&copy; {{ fallbackCopyright }}</p>
             <p class="mb-1">{{ __('This system includes free software. It comes with no warranty, to the extent permitted by law. You may redistribute it under the terms of the licenses below.') }}</p>
           </template>
-          <ul class="list-disc pl-4">
+          <ul v-if="showComponents" class="list-disc pl-4">
             <li v-for="component in components" :key="component.app">
               {{ component.name }} {{ component.version }} &ndash;
               <a :href="component.license_url" target="_blank" rel="noopener noreferrer" class="underline">{{ component.license }}</a>,
@@ -55,6 +55,8 @@ const fallbackComponents = [{
 }]
 const about = createResource({ url: 'platform_customize.branding.api.get_about', onError: () => {} })
 const branding = computed(() => about.data?.branding || {})
+// Hidden only when the API says so (Branding Settings > Show component list); the fallback list shows when the API is unavailable.
+const showComponents = computed(() => (about.data ? about.data.show_components !== false : true))
 const components = computed(() => about.data?.components?.length ? about.data.components : fallbackComponents)
 watch(show, (open) => {
   if (open) {
