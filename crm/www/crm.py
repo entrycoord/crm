@@ -4,7 +4,12 @@
 import frappe
 from frappe import _, get_installed_apps
 from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
-from frappe.translate import get_messages_for_boot, get_translated_doctypes
+from frappe.translate import (
+	get_messages_for_boot,
+	get_parent_language,
+	get_translated_doctypes,
+	get_user_translations,
+)
 from frappe.utils import cint, get_system_timezone
 from frappe.utils.telemetry import capture
 
@@ -82,7 +87,7 @@ def get_boot():
 			"is_fc_site": is_fc_site(),
 			"cloud_settings": get_cloud_settings(),
 			"translated_doctypes": get_translated_doctypes(),
-			"translated_messages": get_messages_for_boot(),
+			"translated_messages": get_crm_translations_for_boot(),
 			"timezone": {
 				"system": get_system_timezone(),
 				"user": frappe.db.get_value("User", frappe.session.user, "time_zone")
@@ -91,6 +96,31 @@ def get_boot():
 			"state_options": get_state_options(),
 		}
 	)
+
+
+def get_crm_translations_for_boot():
+	# The request language may differ from the user's or site's language.
+	# Hooks supply only their CRM-specific layer; never mutate Frappe's cache.
+	messages = get_messages_for_boot().copy()
+	layers = frappe.get_hooks("crm_boot_translation_layers")
+	if not layers:
+		return messages
+
+	for hook in layers:
+		messages.update(frappe.get_attr(hook)(frappe.local.lang))
+
+	# Translation records edited on the site are the urgent-fix channel, so they
+	# are re-applied after the app layer (parent language first, then the variant),
+	# the same order frappe.translate.get_all_translations uses.
+	lang = frappe.local.lang
+	parent = get_parent_language(lang) if lang else None
+	for code in (parent, lang):
+		if code:
+			try:
+				messages.update(get_user_translations(code))
+			except Exception:
+				pass  # never break the page load over translations
+	return messages
 
 
 def get_cloud_settings() -> dict:
