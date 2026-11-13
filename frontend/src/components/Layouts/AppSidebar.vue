@@ -130,6 +130,7 @@
               <BrushCleaningIcon class="size-4" />
             </template>
           </SidebarItem>
+          <ReportIssueSidebarItem />
           <SidebarItem
             v-if="isOnboardingStepsCompleted && hasHelp"
             :label="__('Help')"
@@ -150,6 +151,9 @@
               />
             </template>
           </SidebarItem>
+        </div>
+        <div v-else class="mt-auto flex flex-col gap-1 pt-2">
+          <ReportIssueSidebarItem mobile />
         </div>
       </div>
     </Sidebar>
@@ -221,6 +225,7 @@ import { call, Sidebar, SidebarItem, SidebarLabel, Tooltip } from 'frappe-ui'
 import { useHelpUrl } from '@/composables/useHelpUrl'
 import { getHelpArticles } from '@/data/helpArticles'
 import HelpModal from '@/components/Onboarding/HelpModal.vue'
+import ReportIssueSidebarItem from '@/components/Layouts/ReportIssueSidebarItem.vue'
 import GettingStartedBanner from '@/components/Onboarding/GettingStartedBanner.vue'
 import IntermediateStepModal from '@/components/Onboarding/IntermediateStepModal.vue'
 import {
