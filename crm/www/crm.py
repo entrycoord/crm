@@ -13,6 +13,7 @@ from frappe.utils import cint, get_system_timezone
 
 from crm.automation.events import HAS_AUTOMATION_ENGINE
 from crm.telemetry import capture
+from crm.utils.boot_extensions import collect_boot_extensions
 
 no_cache = 1
 
@@ -70,7 +71,7 @@ def get_context_for_dev():
 
 
 def get_boot():
-	return frappe._dict(
+	boot = frappe._dict(
 		{
 			"frappe_version": frappe.__version__,
 			"has_automation_engine": HAS_AUTOMATION_ENGINE,
@@ -93,6 +94,12 @@ def get_boot():
 			"state_options": get_state_options(),
 		}
 	)
+
+	# Other apps contribute extra boot data (e.g. sidebar entries) through the
+	# `crm_boot_extensions` hook; a broken extension is logged and skipped.
+	extensions = collect_boot_extensions(frappe.get_hooks("crm_boot_extensions"))
+	boot["extensions"] = {**(boot.get("extensions") or {}), **extensions}
+	return boot
 
 
 def get_crm_translations_for_boot():

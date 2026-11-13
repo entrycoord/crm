@@ -5,7 +5,7 @@ from types import SimpleNamespace
 import unittest
 
 class BootTranslationsTest(unittest.TestCase):
-    def boot(self, override, methods, base, lang="hu", hooks=None, user=None):
+    def boot(self, override, methods, base, lang="hu", hooks=None, user=None, extensions=None, full=False):
         path = Path(__file__).with_name("crm.py")
         tree = ast.parse(path.read_text(encoding="utf-8"))
         module = ast.Module(body=[n for n in tree.body if isinstance(n, ast.FunctionDef)], type_ignores=[])
@@ -17,7 +17,7 @@ class BootTranslationsTest(unittest.TestCase):
             db=SimpleNamespace(get_default=lambda key: None, get_value=lambda *args: None),
             session=SimpleNamespace(user="test"), get_system_settings=lambda key: 1,
             override_whitelisted_method=lambda method: override or method,
-            get_attr=lambda name: methods[name], get_hooks=lambda name: hooks or [], whitelist=lambda **kwargs: lambda func: func,
+            get_attr=lambda name: methods[name], get_hooks=lambda name: (hooks or []) if name == "crm_boot_translation_layers" else (extensions or []), whitelist=lambda **kwargs: lambda func: func,
         )
         env = dict(frappe=frappe, HAS_AUTOMATION_ENGINE=False, cint=int,
                    get_messages_for_boot=lambda: base, get_translated_doctypes=dict,
@@ -25,8 +25,11 @@ class BootTranslationsTest(unittest.TestCase):
                    get_parent_language=lambda code: code.replace("-", "_").split("_")[0] if ("-" in code or "_" in code) else None,
                    is_fc_site=lambda: False, get_system_timezone=lambda: "UTC")
         exec(compile(module, str(path), "exec"), env)
-        env.update(get_cloud_settings=dict, get_state_options=dict)
-        return env["get_boot"]()["translated_messages"]
+        # the real collector has its own unit tests (crm/tests/test_boot_extensions_unit.py)
+        env.update(get_cloud_settings=dict, get_state_options=dict,
+                   collect_boot_extensions=lambda paths: {k: v for path in paths for k, v in methods[path]().items()})
+        boot = env["get_boot"]()
+        return boot if full else boot["translated_messages"]
 
     def test_boot_hook_preserves_request_locale_and_runtime_messages(self):
         base = {"Accounts": "Site translation", "Runtime": "Custom"}
@@ -54,6 +57,15 @@ class BootTranslationsTest(unittest.TestCase):
         user = {"pt": {"A": "parent", "B": "parent"}, "pt-BR": {"A": "child"}}
         result = self.boot(None, {"overlay.boot": layer}, {}, lang="pt-BR", hooks=["overlay.boot"], user=user)
         self.assertEqual(result, {"A": "child", "B": "parent"})
+
+    def test_boot_extensions_hook_results_land_under_extensions(self):
+        ext = lambda: {"report_issue": {"enabled": True, "label": "", "bundle_url": "/assets/x.js"}}
+        boot = self.boot(None, {"overlay.ext": ext}, {}, extensions=["overlay.ext"], full=True)
+        self.assertEqual(boot["extensions"], {"report_issue": {"enabled": True, "label": "", "bundle_url": "/assets/x.js"}})
+
+    def test_boot_extensions_is_an_empty_dict_without_hooks(self):
+        boot = self.boot(None, {}, {}, full=True)
+        self.assertEqual(boot["extensions"], {})
 
     def test_without_override_uses_unchanged_boot_messages(self):
         base = {"Accounts": "Global"}
