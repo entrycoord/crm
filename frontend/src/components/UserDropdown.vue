@@ -55,6 +55,7 @@ import { showSettings, isMobileView } from '@/composables/settings'
 import { showAboutModal } from '@/composables/modals'
 import LucideLayoutGrid from '~icons/lucide/layout-grid'
 import { spriteIcon } from '@/utils/spriteIcon'
+import { buildApps } from '@/utils/appsList'
 import { createResource, Dropdown } from 'frappe-ui'
 import { computed, h, markRaw } from 'vue'
 
@@ -72,7 +73,9 @@ const apps = createResource({
   url: 'frappe.apps.get_apps',
   cache: 'apps',
   auto: true,
-  transform: (data) => crmSiblingApps(data),
+  // canonical titles/logos and the Rendszer entry (/desk) come from the API;
+  // buildApps orders them and fills the gaps when platform_customize is absent
+  transform: (data) => buildApps(data, __('System'), __),
 })
 
 const dropdownItems = computed(() => {
@@ -160,8 +163,7 @@ function getStandardItem(item) {
 }
 
 function appMenuItems() {
-  // built per render so a Brand logo that loads after the app list is picked up
-  return [deskApp(), ...(apps.data || [])].map((app) => ({
+  return (apps.data || buildApps([], __('System'), __)).map((app) => ({
     label: app.title,
     onClick: () => (window.location.href = app.route),
     slots: {
@@ -171,27 +173,5 @@ function appMenuItems() {
           : h(LucideLayoutGrid, { class: 'size-5 p-0.5 text-ink-gray-7' }),
     },
   }))
-}
-
-// The back-office entry. It carries no framework mark: the Brand logo when
-// one is set, otherwise a neutral grid icon (a missing `logo` renders it).
-function deskApp() {
-  return {
-    name: 'desk',
-    logo: brand.logo || '',
-    title: __('System'),
-    route: '/desk',
-  }
-}
-
-function crmSiblingApps(data) {
-  return data
-    .filter((app) => app.name !== 'crm')
-    .map((app) => ({
-      name: app.name,
-      logo: app.logo,
-      title: __(app.title),
-      route: app.route,
-    }))
 }
 </script>
