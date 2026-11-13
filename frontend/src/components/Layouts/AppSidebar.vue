@@ -141,7 +141,11 @@
             </template>
           </SidebarItem>
           <SidebarItem
-            :label="isCollapsed ? __('Expand') : __('Collapse')"
+            :label="
+              isCollapsed
+                ? __('Expand', null, 'sidebar')
+                : __('Collapse', null, 'sidebar')
+            "
             @click="isSidebarCollapsed = !isSidebarCollapsed"
           >
             <template #prefix>
