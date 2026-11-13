@@ -17,7 +17,12 @@
       class="flex justify-between items-center text-base text-ink-gray-5 mx-2"
     >
       <div>{{ __("All articles") }}</div>
-      <Button variant="ghost" :aria-label="__('Open docs')" @click="openDocs">
+      <Button
+        v-if="hasHelp"
+        variant="ghost"
+        :aria-label="__('Open docs')"
+        @click="openHelp()"
+      >
         <LucideArrowUpRight class="size-4 text-ink-gray-5" />
       </Button>
     </div>
@@ -44,7 +49,7 @@
             v-for="subArticle in a.subArticles"
             :key="subArticle.name"
             class="group flex items-center justify-between gap-2 p-1.5 hover:bg-surface-gray-1 rounded-4 cursor-pointer"
-            @click="() => openDoc(subArticle.name)"
+            @click="() => openArticle(subArticle)"
           >
             <div class="flex items-center gap-2">
               <LucideFileText class="size-4 text-ink-gray-5" />
@@ -69,11 +74,11 @@ import LucideChevronRight from "~icons/lucide/chevron-right";
 import LucideFileText from "~icons/lucide/file-text";
 import LucideSearch from "~icons/lucide/search";
 import { ref, computed, onMounted } from "vue";
-import type { HelpArticle, HelpCenterProps } from "./types";
+import { useHelpUrl } from "@/composables/useHelpUrl";
+import type { HelpArticle } from "./types";
 
-const props = withDefaults(defineProps<HelpCenterProps>(), {
-  docsLink: "https://docs.frappe.io/crm",
-});
+// Every link of the Help centre goes to the one configured help URL.
+const { hasHelp, openHelp } = useHelpUrl();
 
 // `el` is frappe-ui's current TextInput template-ref member. It is being
 // renamed to `inputElement` in frappe-ui 1.0.0 (spec/imperative-api.md), so
@@ -99,12 +104,12 @@ const parsedArticles = computed(() => {
   });
 });
 
-function openDocs() {
-  window.open(props.docsLink, "_blank");
-}
-
-function openDoc(name: string) {
-  window.open(`${props.docsLink}/${name}`, "_blank");
+function openArticle(article: { name: string; url?: string }) {
+  if (article.url) {
+    window.open(article.url, "_blank", "noopener");
+  } else {
+    openHelp(article.name);
+  }
 }
 
 onMounted(() => {

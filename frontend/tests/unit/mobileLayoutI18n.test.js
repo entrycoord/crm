@@ -2,6 +2,11 @@ import { describe, expect, it, vi } from 'vitest'
 import { createApp } from 'vue'
 
 vi.mock('@/components/Icon.vue', () => ({ default: { template: '<i />' } }))
+// EmptyState reads the help URL from the settings store, which fetches on import
+vi.mock('@/stores/settings', async () => {
+  const { ref } = await import('vue')
+  return { getSettings: () => ({ settings: ref({}) }) }
+})
 import EmptyState from '@/components/ListViews/EmptyState.vue'
 import { referenceDoctypeLabel } from '@/utils/referenceDoctypeLabel'
 

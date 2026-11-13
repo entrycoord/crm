@@ -115,17 +115,6 @@
 
         <div v-if="!mobile" class="mt-auto flex flex-col gap-1 pt-2">
           <div class="mb-1 flex flex-col gap-2">
-            <SignupBanner
-              v-if="isDemoSite"
-              :isSidebarCollapsed="isCollapsed"
-              :afterSignup="() => capture('signup_from_demo_site')"
-            />
-            <TrialBanner
-              v-if="isFCSite && !isCloudSettingsAvailable()"
-              :isSidebarCollapsed="isCollapsed"
-              :afterUpgrade="() => capture('upgrade_plan_from_trial_banner')"
-            />
-            <TrialCard v-if="!isCollapsed" />
             <GettingStartedBanner
               v-if="!isOnboardingStepsCompleted"
               :isSidebarCollapsed="isCollapsed"
@@ -142,7 +131,7 @@
             </template>
           </SidebarItem>
           <SidebarItem
-            v-if="isOnboardingStepsCompleted"
+            v-if="isOnboardingStepsCompleted && hasHelp"
             :label="__('Help')"
             @click="toggleHelpModal"
           >
@@ -174,11 +163,11 @@
       v-model="showHelpModal"
       v-model:articles="articles"
       :logo="CRMLogo"
+      :title="productName"
       :afterSkip="(step) => capture('onboarding_step_skipped_' + step)"
       :afterSkipAll="() => capture('onboarding_steps_skipped')"
       :afterReset="(step) => capture('onboarding_step_reset_' + step)"
       :afterResetAll="() => capture('onboarding_steps_reset')"
-      docsLink="https://docs.frappe.io/crm"
     />
     <IntermediateStepModal
       v-model="showIntermediateModal"
@@ -214,6 +203,7 @@ import LucideSearch from '~icons/lucide/search'
 import { openCommandPalette } from '@/composables/useCommandPalette'
 import Settings from '@/components/Settings/Settings.vue'
 import { viewsStore } from '@/stores/views'
+import { getSettings } from '@/stores/settings'
 import {
   unreadNotificationsCount,
   notificationsStore,
@@ -228,10 +218,8 @@ import {
 } from '@/composables/settings'
 import { useBroadcast } from '@/composables/useBroadcast.js'
 import { call, Sidebar, SidebarItem, SidebarLabel, Tooltip } from 'frappe-ui'
-import { SignupBanner } from '@framework/ui/components/SignupBanner'
-import { TrialBanner } from '@framework/ui/components/TrialBanner'
-import TrialCard from '@/components/Layouts/TrialCard.vue'
-import { isCloudSettingsAvailable } from '@/composables/cloudSettings'
+import { useHelpUrl } from '@/composables/useHelpUrl'
+import { getHelpArticles } from '@/data/helpArticles'
 import HelpModal from '@/components/Onboarding/HelpModal.vue'
 import GettingStartedBanner from '@/components/Onboarding/GettingStartedBanner.vue'
 import IntermediateStepModal from '@/components/Onboarding/IntermediateStepModal.vue'
@@ -266,8 +254,10 @@ const isSidebarCollapsed = useStorage('isSidebarCollapsed', false)
 // even when the stored rail state says otherwise.
 const isCollapsed = computed(() => isSidebarCollapsed.value && !props.mobile)
 
-const isFCSite = ref(window.is_fc_site)
-const isDemoSite = ref(window.is_demo_site)
+const { hasHelp } = useHelpUrl()
+const { brand } = getSettings()
+// product name for the "Welcome to {0}" heading: the Brand name, else "CRM"
+const productName = computed(() => brand.name || 'CRM')
 
 const links = getNavigationItems({ mobile: props.mobile })
 
@@ -604,93 +594,6 @@ onMounted(async () => {
   flushPendingSteps()
 })
 
-// help center
-const articles = ref([
-  {
-    title: __('Introduction'),
-    opened: false,
-    subArticles: [
-      { name: 'introduction', title: __('Introduction') },
-      { name: 'setting-up', title: __('Setting Up') },
-    ],
-  },
-  {
-    title: __('Settings'),
-    opened: false,
-    subArticles: [
-      { name: 'profile-and-preferences', title: __('Profile') },
-      { name: 'custom-branding', title: __('Custom Branding') },
-      { name: 'home-actions', title: __('Home Actions') },
-      { name: 'inviting-your-team', title: __('Invite Users') },
-    ],
-  },
-  {
-    title: __('Masters'),
-    opened: false,
-    subArticles: [
-      { name: 'lead', title: __('Lead') },
-      { name: 'deal', title: __('Deal') },
-      { name: 'contact', title: __('Contact') },
-      { name: 'organization', title: __('Organization') },
-      { name: 'note', title: __('Note') },
-      { name: 'task', title: __('Task') },
-      { name: 'call-log', title: __('Call Log') },
-      { name: 'email-template', title: __('Email Template') },
-    ],
-  },
-  {
-    title: __('Capturing Leads'),
-    opened: false,
-    subArticles: [{ name: 'capturing-leads/web-form', title: __('Web Form') }],
-  },
-  {
-    title: __('Views'),
-    opened: false,
-    subArticles: [
-      { name: 'view', title: __('Saved View') },
-      { name: 'public-view', title: __('Public View') },
-      { name: 'pinned-view', title: __('Pinned View') },
-    ],
-  },
-  {
-    title: __('Other Features'),
-    opened: false,
-    subArticles: [
-      { name: 'email-communication', title: __('Email Communication') },
-      { name: 'comment', title: __('Comment') },
-      { name: 'data', title: __('Data') },
-      { name: 'service-level-agreement', title: __('Service Level Agreement') },
-      { name: 'assignment-rule', title: __('Assignment Rule') },
-      { name: 'notification', title: __('Notification') },
-    ],
-  },
-  {
-    title: __('Customization'),
-    opened: false,
-    subArticles: [
-      { name: 'custom-fields', title: __('Custom Fields') },
-      { name: 'custom-actions', title: __('Custom Actions') },
-      { name: 'custom-statuses', title: __('Custom Statuses') },
-      { name: 'custom-list-actions', title: __('Custom List Actions') },
-      { name: 'quick-entry-layout', title: __('Quick Entry Layout') },
-    ],
-  },
-  {
-    title: __('Integration'),
-    opened: false,
-    subArticles: [
-      { name: 'twilio', title: __('Twilio') },
-      { name: 'exotel', title: __('Exotel') },
-      { name: 'whatsapp', title: __('WhatsApp') },
-      { name: 'erpnext', title: __('ERPNext') },
-    ],
-  },
-  {
-    title: __('Frappe CRM mobile'),
-    opened: false,
-    subArticles: [
-      { name: 'mobile-app-installation', title: __('Mobile App Installation') },
-    ],
-  },
-])
+// help center: our own articles live in data/helpArticles.js (empty for now)
+const articles = ref(getHelpArticles())
 </script>

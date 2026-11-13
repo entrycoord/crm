@@ -1,6 +1,8 @@
 import { createApp, nextTick, ref } from 'vue'
 import { vi } from 'vitest'
 
+vi.mock('@/stores/settings', () => ({ getSettings: () => ({ settings: ref({}) }) }))
+
 vi.mock('frappe-ui', () => ({ Dropdown: { template: '<div><slot /></div>' }, TextInput: { template: '<input />' }, Button: { template: '<button><slot /></button>', props: ['label'] }, Badge: { template: '<span>{{ label }}</span>', props: ['label'] }, Tooltip: { template: '<div><slot /></div>' } }))
 vi.mock('frappe-ui/icons', () => ({ StepsIcon: { template: '<i />' }, HelpIcon: { template: '<i />' }, MaximizeIcon: { template: '<i />' }, MinimizeIcon: { template: '<i />' } }))
 vi.mock('@framework/ui/components/Onboarding', () => ({
@@ -39,7 +41,7 @@ describe('translated onboarding chrome', () => {
   })
   it('renders translated welcome and completion count', () => {
     mount(OnboardingSteps, { logo: { template: '<i />' } })
-    expect(element.textContent).toContain('Üdvözlet: Frappe CRM')
+    expect(element.textContent).toContain('Üdvözlet: CRM')
     expect(element.textContent).toContain('1/3 kész')
     expect(element.textContent).toContain('33% kész')
   })

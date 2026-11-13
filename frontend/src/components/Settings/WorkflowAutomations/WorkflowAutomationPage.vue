@@ -9,14 +9,7 @@
         <h2 class="flex text-2xl-semibold leading-none h-5">
           {{ __('Workflow Automations') }}
         </h2>
-        <Tooltip :text="__('View documentation')">
-          <a
-            href="https://docs.frappe.io/crm/automations/introduction"
-            target="_blank"
-          >
-            <LucideCircleQuestionMark class="h-4 w-4 text-ink-gray-6" />
-          </a>
-        </Tooltip>
+        <DocsLink />
       </div>
     </template>
     <template #header-actions>
@@ -160,8 +153,8 @@
 </template>
 
 <script setup>
+import DocsLink from '@/components/Settings/DocsLink.vue'
 import SettingsLayoutBase from '@/components/Layouts/SettingsLayoutBase.vue'
-import LucideCircleQuestionMark from '~icons/lucide/circle-question-mark'
 import EmptyState from '@/components/ListViews/EmptyState.vue'
 import WorkflowAutomationBuilder from './WorkflowAutomationBuilder.vue'
 import WorkflowAutomationDetail from './WorkflowAutomationDetail.vue'

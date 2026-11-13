@@ -15,7 +15,7 @@
         </span>
       </div>
       <div
-        v-if="onCreate || importDoctype || docsLink"
+        v-if="onCreate || importDoctype || showDocs"
         class="mt-2 flex flex-wrap items-center justify-center gap-2"
       >
         <Button
@@ -32,11 +32,11 @@
           :route="{ name: 'NewDataImport', params: { doctype: importDoctype } }"
         />
         <Button
-          v-if="docsLink"
+          v-if="showDocs"
           variant="outline"
           :label="__('Documentation')"
           iconLeft="lucide-external-link"
-          :href="docsLink"
+          :href="helpUrl"
         />
       </div>
     </div>
@@ -44,6 +44,7 @@
 </template>
 <script setup>
 import Icon from '@/components/Icon.vue'
+import { useHelpUrl } from '@/composables/useHelpUrl'
 import { computed } from 'vue'
 
 const props = defineProps({
@@ -58,11 +59,15 @@ const props = defineProps({
   width: { type: String, default: 'md' },
   // true when the list is empty only because of the applied filters
   filtered: { type: Boolean, default: false },
-  docsLink: { type: String, default: '' },
+  // ask for the "Documentation" button; it renders only when a help URL is configured
+  docs: { type: Boolean, default: false },
   importDoctype: { type: String, default: '' },
   // declared as a prop so the Create button only shows when a page listens to @create
   onCreate: { type: Function, default: null },
 })
+
+const { helpUrl, hasHelp } = useHelpUrl()
+const showDocs = computed(() => props.docs && hasHelp.value)
 
 const computedTitle = computed(() => {
   if (props.filtered) return __('No {0} Found', [__(props.name)])

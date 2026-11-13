@@ -151,9 +151,11 @@
                 ])
               }}
               <a
+                v-if="hasHelp"
                 class="font-medium underline"
-                href="https://docs.frappe.io/crm/assignment-rule"
+                :href="helpUrl"
                 target="_blank"
+                rel="noopener"
                 >{{ __('Learn about conditions') }}</a
               >
             </span>
@@ -231,9 +233,11 @@
                 )
               }}
               <a
+                v-if="hasHelp"
                 class="font-medium underline"
-                href="https://docs.frappe.io/crm/assignment-rule"
+                :href="helpUrl"
                 target="_blank"
+                rel="noopener"
                 >{{ __('Learn about conditions') }}</a
               >
             </span>
@@ -320,6 +324,7 @@
 </template>
 
 <script setup>
+import { useHelpUrl } from '@/composables/useHelpUrl'
 import {
   Badge,
   Button,
@@ -361,6 +366,7 @@ const documentType = computed(() =>
     ? __('leads')
     : __('deals'),
 )
+const { helpUrl, hasHelp } = useHelpUrl()
 const deskUrl = `${window.location.origin}/app/assignment-rule/${step.value.data?.name}`
 
 const defaultAssignmentDays = [

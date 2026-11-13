@@ -101,8 +101,8 @@ export interface IntermediateStepModalSlots {
 export interface HelpArticle {
   /** Group heading. */
   title: string;
-  /** Pages inside the group. */
-  subArticles: { name: string; title: string }[];
+  /** Pages inside the group. `url` opens as given, else `<help url>/<name>`. */
+  subArticles: { name: string; title: string; url?: string }[];
   /** Whether the group is expanded. */
   opened?: boolean;
 }
@@ -123,8 +123,6 @@ export interface HelpModalProps {
   afterReset?: OnboardingStepCallback | undefined;
   /** Run after every step is reset. */
   afterResetAll?: OnboardingBulkCallback | undefined;
-  /** Base URL articles open against. */
-  docsLink?: string;
 }
 
 /** Props for `<OnboardingSteps>` — internal to `<HelpModal>`. */
@@ -136,9 +134,4 @@ export interface OnboardingStepsProps {
   afterSkipAll?: OnboardingBulkCallback | undefined;
   afterReset?: OnboardingStepCallback | undefined;
   afterResetAll?: OnboardingBulkCallback | undefined;
-}
-
-/** Props for `<HelpCenter>` — internal to `<HelpModal>`. */
-export interface HelpCenterProps {
-  docsLink?: string;
 }

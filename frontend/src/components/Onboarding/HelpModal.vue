@@ -35,7 +35,7 @@
     </div>
     <div class="h-full overflow-hidden flex flex-col">
       <OnboardingSteps
-        v-if="!isOnboardingStepsCompleted && !showHelpCenter"
+        v-if="!isOnboardingStepsCompleted && !helpCenterVisible"
         :title="title"
         :logo="logo"
         :afterSkip="afterSkip"
@@ -44,11 +44,7 @@
         :afterResetAll="afterResetAll"
         :appName="appName"
       />
-      <HelpCenter
-        v-else-if="showHelpCenter"
-        v-model="articles"
-        :docsLink="docsLink"
-      />
+      <HelpCenter v-else-if="helpCenterVisible" v-model="articles" />
     </div>
     <div v-for="item in footerItems" class="flex flex-col gap-1.5">
       <div
@@ -74,15 +70,20 @@ import OnboardingSteps from "./OnboardingSteps.vue";
 import HelpCenter from "./HelpCenter.vue";
 import { useOnboarding } from "@framework/ui/components/Onboarding";
 import { showHelpCenter } from "./helpCenter";
+import { useHelpUrl } from "@/composables/useHelpUrl";
 import { minimize } from "@framework/ui/components/Onboarding";
 import { computed, watch } from "vue";
 import type { HelpArticle, HelpModalProps } from "./types";
 
 const props = withDefaults(defineProps<HelpModalProps>(), {
   appName: "frappecrm",
-  title: "Frappe CRM",
-  docsLink: "https://docs.frappe.io/crm",
+  title: "CRM",
 });
+
+// Without a configured help URL there is no Help centre: the panel then only
+// carries the getting-started checklist.
+const { hasHelp } = useHelpUrl();
+const helpCenterVisible = computed(() => showHelpCenter.value && hasHelp.value);
 
 const { syncStatus, resetAll, isOnboardingStepsCompleted } = useOnboarding(
   props.appName
@@ -94,9 +95,9 @@ const articles = defineModel<HelpArticle[]>("articles", {
 });
 
 const headingTitle = computed(() => {
-  if (!isOnboardingStepsCompleted.value && !showHelpCenter.value) {
+  if (!isOnboardingStepsCompleted.value && !helpCenterVisible.value) {
     return __("Getting started");
-  } else if (showHelpCenter.value) {
+  } else if (helpCenterVisible.value) {
     return __("Help center");
   }
 });
@@ -107,7 +108,7 @@ const options = computed(() => {
       icon: StepsIcon,
       label: __("Reset onboarding steps"),
       onClick: resetOnboardingSteps,
-      condition: () => showHelpCenter.value && isOnboardingStepsCompleted.value,
+      condition: () => helpCenterVisible.value && isOnboardingStepsCompleted.value,
     },
   ];
 
@@ -123,13 +124,16 @@ const footerItems = computed(() => {
         syncStatus();
         showHelpCenter.value = true;
       },
-      condition: !isOnboardingStepsCompleted.value && !showHelpCenter.value,
+      condition:
+        hasHelp.value &&
+        !isOnboardingStepsCompleted.value &&
+        !helpCenterVisible.value,
     },
     {
       icon: StepsIcon,
       label: __("Getting started"),
       onClick: () => (showHelpCenter.value = false),
-      condition: showHelpCenter.value && !isOnboardingStepsCompleted.value,
+      condition: helpCenterVisible.value && !isOnboardingStepsCompleted.value,
     },
   ];
 

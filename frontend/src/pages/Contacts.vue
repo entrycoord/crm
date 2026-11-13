@@ -58,7 +58,7 @@
       )
     "
     :filtered="!!Object.keys(contacts.params?.filters || {}).length"
-    docsLink="https://docs.frappe.io/crm/contact"
+    docs
     importDoctype="Contact"
     @create="showContactModal = true"
   />
