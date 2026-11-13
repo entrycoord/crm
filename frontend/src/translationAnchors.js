@@ -155,6 +155,8 @@ export function translationAnchors() {
   __("SLA Policies")
   __("Accounts")
   __("ERPNext")
+  // product name; shown via __(brand.name || "CRM") in the user menu
+  __("CRM")
   __("Lead Syncing")
   __("WhatsApp")
   __("Contact")

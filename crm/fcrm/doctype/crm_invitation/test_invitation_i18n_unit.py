@@ -18,6 +18,7 @@ class InvitationLanguageTest(unittest.TestCase):
         frappe.get_cached_value = lambda *args: "hu"
         frappe.get_system_settings = lambda key: "de"
         frappe.sendmail = lambda **kw: sent.append((local.lang, kw))
+        frappe.db = types.SimpleNamespace(get_single_value=lambda *args: None)
         frappe.whitelist = lambda: lambda fn: fn
         model = types.ModuleType("frappe.model")
         document = types.ModuleType("frappe.model.document")
@@ -34,7 +35,7 @@ class InvitationLanguageTest(unittest.TestCase):
             invitation.db_set = lambda *args: None
             invitation.invite_via_email()
         self.assertEqual(sent[0][0], "hu")
-        self.assertEqual(sent[0][1]["subject"], "[hu] You have been invited to join Frappe CRM")
+        self.assertEqual(sent[0][1]["subject"], "[hu] You have been invited to join CRM")
         self.assertEqual(local.lang, "en")
 
     def test_background_job_uses_recipient_language_for_body(self):
@@ -52,6 +53,7 @@ class InvitationLanguageTest(unittest.TestCase):
         frappe.get_cached_value = lambda *args: "hu"
         frappe.get_system_settings = lambda key: "de"
         frappe.sendmail = lambda **kw: sent.append(kw)
+        frappe.db = types.SimpleNamespace(get_single_value=lambda *args: None)
         frappe.whitelist = lambda: lambda fn: fn
         model = types.ModuleType("frappe.model")
         document = types.ModuleType("frappe.model.document")
@@ -67,7 +69,7 @@ class InvitationLanguageTest(unittest.TestCase):
             invitation.key = "abc"
             invitation.db_set = lambda *args: None
             invitation.invite_via_email()
-        self.assertEqual(sent[0]["subject"], "[hu] You have been invited to join Frappe CRM")
+        self.assertEqual(sent[0]["subject"], "[hu] You have been invited to join CRM")
         self.assertEqual(sent[0]["args"]["invitation_button"], "[hu] Accept Invitation")
         self.assertEqual(local.lang, "en")
 

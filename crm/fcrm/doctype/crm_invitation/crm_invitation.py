@@ -42,7 +42,7 @@ class CRMInvitation(Document):
 		if frappe.local.dev_server:
 			print(f"Invite link for {self.email}: {invite_link}")  # nosemgrep
 
-		title = "Frappe CRM"
+		title = frappe.db.get_single_value("FCRM Settings", "brand_name") or "CRM"
 		template = "crm_invitation"
 
 		# Existing users have a preference; new invitees use the site language.
