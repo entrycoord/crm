@@ -46,11 +46,13 @@ import { computed, ref, watch } from 'vue'
 
 const show = defineModel({ type: Boolean })
 const showLegal = ref(false)
-// The fallback must point at the deployed CRM fork when this modified SPA is deployed.
+// Shown only when the shared About API is unavailable. Legal wording stays
+// (copyright holder, licence, source offer); the source offer and the licence
+// text point at the fork this modified SPA is deployed from (AGPL 5(d), 13).
 const fallbackCopyright = 'Frappe Technologies Pvt. Ltd. and contributors'
 const fallbackComponents = [{
-  app: 'crm', name: 'Frappe CRM', license: 'AGPL-3.0',
-  license_url: 'https://github.com/frappe/crm/blob/develop/LICENSE',
+  app: 'crm', name: 'CRM', license: 'AGPL-3.0',
+  license_url: 'https://github.com/entrycoord/crm/blob/HEAD/LICENSE',
   source: 'https://github.com/entrycoord/crm',
 }]
 const about = createResource({ url: 'platform_customize.branding.api.get_about', onError: () => {} })
