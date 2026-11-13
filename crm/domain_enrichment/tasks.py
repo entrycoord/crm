@@ -17,7 +17,8 @@ from __future__ import annotations
 
 import frappe
 from frappe.utils.background_jobs import is_job_enqueued
-from frappe.utils.telemetry import capture
+
+from crm.telemetry import capture
 
 from .config import _setting, auto_enrich_enabled_for, get_config, get_settings
 from .mapper import apply_to_document, filled_labels

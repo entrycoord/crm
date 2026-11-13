@@ -14,6 +14,7 @@
     </div>
     <!-- banner for setting up email account -->
     <div
+      v-if="hasHelp"
       class="flex items-center gap-2 p-2 rounded-5 ring-1 ring-outline-gray-3"
     >
       <CircleAlert
@@ -21,7 +22,7 @@
       />
       <div class="text-xs text-ink-gray-6 text-wrap">
         {{ info.description }}
-        <a :href="info.link" target="_blank" class="underline">
+        <a :href="helpUrl" target="_blank" rel="noopener" class="underline">
           {{ __('here') }}
         </a>
         .
@@ -87,13 +88,14 @@ import { call, toast } from 'frappe-ui'
 import EmailProviderIcon from './EmailProviderIcon.vue'
 import {
   emailIcon,
-  services,
+  allServices,
   popularProviderFields,
   customProviderFields,
   validateInputs,
   incomingOutgoingFields,
 } from './emailConfig'
 import CircleAlert from '~icons/lucide/circle-alert'
+import { useHelpUrl } from '@/composables/useHelpUrl'
 
 const props = defineProps({
   accountData: { type: Object, default: () => ({}) },
@@ -117,13 +119,14 @@ const state = reactive({
     props.accountData.create_lead_from_incoming_email || false,
 })
 
+// the banner shows only when a help URL is configured
+const { helpUrl, hasHelp } = useHelpUrl()
 const info = {
   description: __('To know more about setting up email accounts, click'),
-  link: 'https://docs.erpnext.com/docs/user/manual/en/email-account',
 }
 
 const isCustomService = computed(() => {
-  return services.find((s) => s.name === props.accountData.service)?.custom
+  return allServices.find((s) => s.name === props.accountData.service)?.custom
 })
 
 const fields = computed(() => {

@@ -52,16 +52,7 @@
         :label="__('Email address')"
         placeholder="you@company.com"
       />
-      <template v-if="selected.custom">
-        <TextInput
-          v-model="state.frappe_mail_site"
-          :label="__('Frappe Mail site')"
-          placeholder="https://frappemail.com"
-        />
-        <TextInput v-model="state.api_key" :label="__('API key')" />
-        <Password v-model="state.api_secret" :label="__('API secret')" />
-      </template>
-      <Password v-else v-model="state.password" :label="__('App password')">
+      <Password v-model="state.password" :label="__('App password')">
         <template #description>
           {{ selected.info }}
           <a
@@ -189,9 +180,6 @@ const state = reactive({
   service: undefined,
   email_id: '',
   password: '',
-  frappe_mail_site: '',
-  api_key: '',
-  api_secret: '',
   enable_incoming: true,
   enable_outgoing: true,
 })

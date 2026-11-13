@@ -47,16 +47,13 @@
 
 <script setup>
 import BrandLogo from '@/components/BrandLogo.vue'
-import FrappeCloudIcon from '@/components/Icons/FrappeCloudIcon.vue'
 import AppsIcon from '@/components/Icons/AppsIcon.vue'
 import { sessionStore } from '@/stores/session'
 import { usersStore } from '@/stores/users'
 import { getSettings } from '@/stores/settings'
 import { showSettings, isMobileView } from '@/composables/settings'
 import { showAboutModal } from '@/composables/modals'
-import { confirmLoginToFrappeCloud } from '@/composables/frappecloud'
-import { useCloudSettings } from '@/composables/cloudSettings'
-import CreditCardIcon from '~icons/lucide/credit-card'
+import LucideLayoutGrid from '~icons/lucide/layout-grid'
 import { spriteIcon } from '@/utils/spriteIcon'
 import { createResource, Dropdown } from 'frappe-ui'
 import { computed, h, markRaw } from 'vue'
@@ -67,7 +64,6 @@ defineProps({
 
 const { settings, brand } = getSettings()
 const { logout } = sessionStore()
-const { available: canManageBilling, open: openBilling } = useCloudSettings()
 const { getUser } = usersStore()
 
 const user = computed(() => getUser() || {})
@@ -76,7 +72,7 @@ const apps = createResource({
   url: 'frappe.apps.get_apps',
   cache: 'apps',
   auto: true,
-  transform: (data) => [deskApp(), ...crmSiblingApps(data)],
+  transform: (data) => crmSiblingApps(data),
 })
 
 const dropdownItems = computed(() => {
@@ -94,6 +90,9 @@ const dropdownItems = computed(() => {
 
   items.forEach((item) => {
     if (item.hidden) return
+    // Frappe Cloud account entry: not offered here (older sites still have the
+    // row until the next migrate removes it)
+    if (item.name1 === 'login_to_fc') return
     if (item.type !== 'Separator') {
       _dropdownItems[_dropdownItems.length - 1].options.push(
         dropdownItemObj(item),
@@ -145,21 +144,6 @@ function getStandardItem(item) {
         onClick: () => (showSettings.value = true),
         condition: () => !isMobileView.value,
       }
-    case 'login_to_fc':
-      if (canManageBilling) {
-        return {
-          icon: markRaw(CreditCardIcon),
-          label: __('Manage Billing'),
-          onClick: () => openBilling(),
-          condition: () => !isMobileView.value,
-        }
-      }
-      return {
-        icon: h(FrappeCloudIcon),
-        label: __(item.label),
-        onClick: () => confirmLoginToFrappeCloud(),
-        condition: () => !isMobileView.value && window.is_fc_site,
-      }
     case 'about':
       return {
         icon: item.icon,
@@ -176,20 +160,26 @@ function getStandardItem(item) {
 }
 
 function appMenuItems() {
-  return (apps.data || []).map((app) => ({
+  // built per render so a Brand logo that loads after the app list is picked up
+  return [deskApp(), ...(apps.data || [])].map((app) => ({
     label: app.title,
     onClick: () => (window.location.href = app.route),
     slots: {
-      prefix: () => h('img', { class: 'size-5 rounded-4', src: app.logo }),
+      prefix: () =>
+        app.logo
+          ? h('img', { class: 'size-5 rounded-4', src: app.logo })
+          : h(LucideLayoutGrid, { class: 'size-5 p-0.5 text-ink-gray-7' }),
     },
   }))
 }
 
+// The back-office entry. It carries no framework mark: the Brand logo when
+// one is set, otherwise a neutral grid icon (a missing `logo` renders it).
 function deskApp() {
   return {
-    name: 'frappe',
-    logo: '/assets/frappe/images/framework.png',
-    title: __('Desk'),
+    name: 'desk',
+    logo: brand.logo || '',
+    title: __('System'),
     route: '/desk',
   }
 }

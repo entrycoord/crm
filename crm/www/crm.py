@@ -3,7 +3,6 @@
 
 import frappe
 from frappe import _, get_installed_apps
-from frappe.integrations.frappe_providers.frappecloud_billing import is_fc_site
 from frappe.translate import (
 	get_messages_for_boot,
 	get_parent_language,
@@ -11,9 +10,9 @@ from frappe.translate import (
 	get_user_translations,
 )
 from frappe.utils import cint, get_system_timezone
-from frappe.utils.telemetry import capture
 
 from crm.automation.events import HAS_AUTOMATION_ENGINE
+from crm.telemetry import capture
 
 no_cache = 1
 
@@ -22,7 +21,7 @@ def get_context():
 	from crm.api import check_app_permission
 
 	if not check_app_permission():
-		frappe.throw(_("You do not have permission to access Frappe CRM"), frappe.PermissionError)
+		frappe.throw(_("You do not have permission to access CRM"), frappe.PermissionError)
 
 	redirect_to_set_password()
 
@@ -37,8 +36,8 @@ def get_context():
 def redirect_to_set_password():
 	"""Send users who have no password of their own to the set password page.
 
-	The Frappe Cloud site owner arrives on a session handed over by the
-	dashboard and never sets a password, so they cannot get back in once it
+	A site owner who arrives on a session handed over by an external
+	dashboard never sets a password, so they cannot get back in once it
 	expires. Invited users are already routed here by `accept_invitation`; this
 	covers everyone else, on the same page.
 	"""
@@ -82,10 +81,7 @@ def get_boot():
 			"csrf_token": frappe.sessions.get_csrf_token(),
 			"setup_complete": cint(frappe.get_system_settings("setup_complete")),
 			"sysdefaults": frappe.defaults.get_defaults(),
-			"is_demo_site": frappe.conf.get("is_demo_site"),
 			"demo_data_created": frappe.db.get_default("crm_demo_data_created") == "1",
-			"is_fc_site": is_fc_site(),
-			"cloud_settings": get_cloud_settings(),
 			"translated_doctypes": get_translated_doctypes(),
 			"translated_messages": get_crm_translations_for_boot(),
 			"lang": frappe.local.lang,
@@ -122,15 +118,6 @@ def get_crm_translations_for_boot():
 			except Exception:
 				pass  # never break the page load over translations
 	return messages
-
-
-def get_cloud_settings() -> dict:
-	"""Cloud Settings boot context, enabled for System Managers on Frappe Cloud v2 sites."""
-	try:
-		from frappe.integrations.frappe_providers.cloud_settings import get_boot_context
-	except ImportError:
-		return {"enabled": False}
-	return get_boot_context()
 
 
 def get_state_options() -> dict[str, list[str]]:

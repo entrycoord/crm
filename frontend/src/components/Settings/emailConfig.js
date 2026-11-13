@@ -78,10 +78,10 @@ export const popularProviderFields = [
 export const customProviderFields = [
   ...fixedFields,
   {
-    label: __('Frappe Mail Site'),
+    label: __('Mail server site'),
     name: 'frappe_mail_site',
     type: 'text',
-    placeholder: 'https://frappemail.com',
+    placeholder: 'https://mail.example.com',
   },
   {
     label: __('API Key'),
@@ -97,16 +97,18 @@ export const customProviderFields = [
   },
 ]
 
-export const services = [
+// Accounts that already exist on a site keep working and stay editable, but
+// the provider is no longer offered for new ones (it is not in `services`).
+const legacyServices = [
   {
     name: 'Frappe Mail',
     icon: LogoFrappeMail,
-    info: __(
-      'Setting up Frappe Mail requires you to have an API key and API secret for your email account. Read more',
-    ),
-    link: 'https://github.com/frappe/mail',
     custom: true,
   },
+]
+
+// Providers offered when adding an account.
+export const services = [
   {
     name: 'GMail',
     label: 'Gmail',
@@ -163,6 +165,9 @@ export const services = [
     custom: false,
   },
 ]
+
+// Everything an existing account can be on (edit view).
+export const allServices = [...legacyServices, ...services]
 
 export const emailIcon = {
   GMail: LogoGmail,

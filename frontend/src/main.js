@@ -25,7 +25,6 @@ import {
   dayjs,
 } from 'frappe-ui'
 
-import { telemetryPlugin } from '@framework/ui/telemetry'
 // injects the lucide SVG sprite into the DOM so the IconPicker and lucide Icons
 // (used for view icons) can render from it
 import { spritePlugin } from 'frappe-ui/experimental'
@@ -56,7 +55,8 @@ installFrappeUiI18n(frappeUiEditor)
 for (let key in globalComponents) {
   app.component(key, globalComponents[key])
 }
-app.use(telemetryPlugin, { app_name: 'crm' })
+// Product telemetry is not installed in this build: `useTelemetry().capture`
+// stays a no-op and no usage-data client is ever loaded.
 
 app.config.globalProperties.$dialog = createDialog
 

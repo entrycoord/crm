@@ -15,7 +15,8 @@ import json
 
 import frappe
 from frappe import _
-from frappe.utils.telemetry import capture
+
+from crm.telemetry import capture
 
 ALLOWED_DOCTYPES = ("CRM Lead", "CRM Deal")
 FORM_SOURCE = "Web Form"

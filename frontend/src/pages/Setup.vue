@@ -41,10 +41,9 @@
           </Transition>
         </div>
       </main>
-      <SetupTelemetryConsent class="mb-3" />
       <footer class="flex items-center gap-2 text-sm text-ink-gray-5">
         <CRMLogo class="size-4" />
-        Frappe CRM
+        {{ brand.name || 'CRM' }}
       </footer>
     </section>
     <SetupPreview
@@ -61,10 +60,10 @@ import SetupPreview from '@/components/Setup/SetupPreview.vue'
 import SetupEmail from '@/components/Setup/SetupEmail.vue'
 import SetupLeads from '@/components/Setup/SetupLeads.vue'
 import SetupInvite from '@/components/Setup/SetupInvite.vue'
-import SetupTelemetryConsent from '@/components/Setup/SetupTelemetryConsent.vue'
 import { setupFeedback } from '@/composables/modals'
 import { SETUP_DONE_KEY } from '@/router'
 import { globalStore } from '@/stores/global'
+import { getSettings } from '@/stores/settings'
 import { Button, Progress, call, usePageMeta } from 'frappe-ui'
 import { useTelemetry } from '@framework/ui/telemetry'
 import { computed, markRaw, provide, reactive, ref, watch } from 'vue'
@@ -73,6 +72,7 @@ import { useRouter } from 'vue-router'
 const router = useRouter()
 const { capture } = useTelemetry()
 const { $dialog } = globalStore()
+const { brand } = getSettings()
 
 const steps = [
   { name: 'connect_email', component: markRaw(SetupEmail) },
@@ -203,7 +203,7 @@ async function markSetupDone() {
   }
 }
 
-usePageMeta(() => ({ title: __('Set up Frappe CRM') }))
+usePageMeta(() => ({ title: __('Set up CRM') }))
 </script>
 
 <style scoped>
